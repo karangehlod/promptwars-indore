@@ -1,12 +1,12 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../store/useAppStore';
-import { Sparkles, Map, Gem, Monument, Calendar, MapPin, AlertTriangle } from 'lucide-react';
+import { Sparkles, Map, Gem, Landmark, Calendar, MapPin, AlertTriangle } from 'lucide-react';
 
 const steps = [
   { id: 'recommendations', label: 'Curating recommendations...', icon: Map },
   { id: 'hiddenGems', label: 'Discovering hidden gems...', icon: Gem },
-  { id: 'heritage', label: 'Uncovering heritage...', icon: Monument },
+  { id: 'heritage', label: 'Uncovering heritage...', icon: Landmark },
   { id: 'experiences', label: 'Finding local experiences...', icon: MapPin },
   { id: 'events', label: 'Checking local events...', icon: Calendar }
 ];

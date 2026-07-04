@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { X, Sparkles, AlertCircle } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { generateStoryStream } from '../../services/agent';
@@ -20,7 +20,7 @@ export const StorytellingModal: React.FC<StorytellingModalProps> = ({ placeId, p
   const [error, setError] = useState('');
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const startGeneration = (selectedTheme: string) => {
+  const startGeneration = useCallback((selectedTheme: string) => {
     if (!profile) return;
     
     // Abort previous generation if any (though typically API takes a signal, here we'll just ignore chunks)
@@ -47,12 +47,12 @@ export const StorytellingModal: React.FC<StorytellingModalProps> = ({ placeId, p
     return () => {
       isCancelled = true;
     };
-  };
+  }, [profile, placeName]);
 
   useEffect(() => {
     const cleanup = startGeneration(theme);
     return cleanup;
-  }, [placeId, placeName, profile, theme]);
+  }, [placeId, placeName, profile, theme, startGeneration]);
 
   const handleClose = () => {
     if (abortControllerRef.current) {

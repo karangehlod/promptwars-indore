@@ -21,9 +21,10 @@ interface AppState {
   theme: 'light' | 'dark' | 'system';
   setTheme: (theme: 'light' | 'dark' | 'system') => void;
 
-  // UI State
   activeStep: 'profile' | 'destination' | 'dashboard' | 'itinerary';
   setActiveStep: (step: 'profile' | 'destination' | 'dashboard' | 'itinerary') => void;
+  hasStarted: boolean;
+  setHasStarted: (hasStarted: boolean) => void;
 
   // AI Pipeline State
   aiLoadingState: 'idle' | 'recommendations' | 'hiddenGems' | 'heritage' | 'experiences' | 'events' | 'error' | 'done';
@@ -74,6 +75,8 @@ export const useAppStore = create<AppState>((set) => ({
 
   activeStep: 'profile',
   setActiveStep: (activeStep) => set({ activeStep }),
+  hasStarted: false,
+  setHasStarted: (hasStarted) => set({ hasStarted }),
 
   aiLoadingState: 'idle',
   setAiLoadingState: (aiLoadingState) => set({ aiLoadingState }),

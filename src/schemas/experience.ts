@@ -6,6 +6,7 @@ export const AuthenticExperienceSchema = z.object({
   type: z.enum(['workshop', 'homestay', 'guide']),
   description: z.string(),
   estCost: z.number(),
+  costJustification: z.string().optional(),
   duration: z.string()
 });
 

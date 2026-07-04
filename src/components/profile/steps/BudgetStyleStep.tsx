@@ -12,7 +12,6 @@ const PREDEFINED_STYLES = ['Backpacker', 'Comfort', 'Luxury', 'Family', 'Solo', 
 
 export const BudgetStyleStep: React.FC<BudgetStyleStepProps> = ({ initialBudget, initialStyle, onBack, onNext }) => {
   const [amount, setAmount] = useState(initialBudget?.amount?.toString() || '');
-  const [currency, setCurrency] = useState(initialBudget?.currency || 'USD');
   const [level, setLevel] = useState<Budget['level']>(initialBudget?.level || 'mid');
   const [style, setStyle] = useState<string[]>(initialStyle || []);
   const [error, setError] = useState('');

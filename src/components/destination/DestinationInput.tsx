@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
-import { getRecommendations, getHiddenGems, getHeritageInsights, getLocalEvents, getAuthenticExperiences } from '../../services/agent';
 
 export const DestinationInput: React.FC = () => {
-  const { profile, setDestination, setActiveStep, setRecommendations, setHiddenGems, setHeritage, setEvents, setExperiences } = useAppStore();
+  const { profile, setDestination, setActiveStep } = useAppStore();
   
   const [city, setCity] = useState('');
   const [region, setRegion] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const indianStates = [
     "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
     "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",

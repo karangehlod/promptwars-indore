@@ -5,7 +5,8 @@ export const DayPlanItemSchema = z.object({
   time: z.string(),
   activity: z.string(),
   notes: z.string().optional(),
-  cost: z.number().optional()
+  cost: z.number().optional(),
+  costJustification: z.string().optional()
 });
 
 export const DayPlanSchema = z.object({

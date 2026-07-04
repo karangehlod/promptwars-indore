@@ -1,37 +1,71 @@
 import React from 'react';
 import type { DayPlan } from '../../schemas/itinerary';
+import { RefreshCw, Loader2 } from 'lucide-react';
+import { formatCurrency } from '../../utils/formatters';
 
-export const DayTimeline: React.FC<{ days: DayPlan[] }> = ({ days }) => {
+interface DayTimelineProps {
+  days: DayPlan[];
+  onRegenerateDay?: (dayNumber: number) => void;
+  regeneratingDay?: number | null;
+}
+
+export const DayTimeline: React.FC<DayTimelineProps> = ({ days, onRegenerateDay, regeneratingDay }) => {
   return (
     <div className="space-y-8 flex-1 overflow-x-auto">
       <div className="flex md:flex-col gap-6 md:gap-8 pb-4 md:pb-0">
         {days.map(day => (
-          <div key={day.day} className="min-w-[300px] md:min-w-0 md:w-full flex-shrink-0">
-            <div className="sticky top-16 z-10 bg-surface-color/90 backdrop-blur-md py-2 border-b border-border-color mb-4">
-              <h3 className="font-bold text-lg text-primary-700 dark:text-primary-400">Day {day.day}</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{day.date}</p>
+          <div key={day.day} className="min-w-[300px] md:min-w-0 md:w-full flex-shrink-0 relative">
+            
+            <div className="sticky top-16 z-10 bg-surface/90 backdrop-blur-md py-2 border-b border-border mb-4 flex justify-between items-center">
+              <div>
+                <h3 className="font-bold text-lg text-text-primary">Day {day.day}</h3>
+                <p className="text-sm text-text-secondary">{day.date}</p>
+              </div>
+              {onRegenerateDay && (
+                <button
+                  onClick={() => onRegenerateDay(day.day)}
+                  disabled={regeneratingDay === day.day}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-surface-elevated border border-border rounded-lg text-text-secondary hover:text-accent hover:border-accent transition-colors disabled:opacity-50"
+                  title="Regenerate this day's itinerary"
+                >
+                  {regeneratingDay === day.day ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-4 h-4" />
+                  )}
+                  <span className="hidden sm:inline">Regenerate</span>
+                </button>
+              )}
             </div>
             
-            <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-200 dark:before:via-gray-700 before:to-transparent">
+            <div className={`space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border before:to-transparent transition-opacity ${regeneratingDay === day.day ? 'opacity-50' : ''}`}>
               {day.items.map((item, idx) => (
                 <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
                   {/* Timeline Dot */}
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-surface-color dark:border-gray-900 bg-primary-100 dark:bg-primary-900/50 shadow shrink-0 md:order-1 md:group-odd:-ml-5 md:group-even:-mr-5 z-10">
-                    <div className="w-2.5 h-2.5 bg-primary-600 dark:bg-primary-500 rounded-full" />
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-surface bg-accent/10 shadow-sm shrink-0 md:order-1 md:group-odd:-ml-5 md:group-even:-mr-5 z-10">
+                    <div className="w-2.5 h-2.5 bg-accent rounded-full" />
                   </div>
                   
                   {/* Content Card */}
-                  <div className="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-border-color hover:shadow-md transition-shadow">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-semibold text-gray-900 dark:text-gray-100">{item.activity}</h4>
-                      <span className="text-xs font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-gray-600 dark:text-gray-300 ml-2 whitespace-nowrap">{item.time}</span>
+                  <div className="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] p-4 bg-surface rounded-xl shadow-sm border border-border hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-2 gap-2">
+                      <h4 className="font-semibold text-text-primary">{item.activity}</h4>
+                      <span className="text-xs font-mono bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-text-secondary whitespace-nowrap">{item.time}</span>
                     </div>
-                    {item.notes && <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{item.notes}</p>}
-                    {item.cost !== undefined && item.cost > 0 && (
-                      <div className="text-xs font-medium text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 inline-block px-2 py-1 rounded">
-                        Est. Cost: ${item.cost}
-                      </div>
-                    )}
+                    {item.notes && <p className="text-sm text-text-secondary mb-3">{item.notes}</p>}
+                    
+                    <div className="flex flex-wrap gap-2 items-center">
+                      {item.cost !== undefined && item.cost > 0 && (
+                        <div className="text-xs font-medium text-accent bg-accent/10 inline-block px-2 py-1 rounded">
+                          {formatCurrency(item.cost, 'INR')}
+                        </div>
+                      )}
+                      {item.costJustification && (
+                        <p className="text-xs text-text-secondary italic">
+                          ({item.costJustification})
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}

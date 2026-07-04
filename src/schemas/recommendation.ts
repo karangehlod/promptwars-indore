@@ -6,6 +6,7 @@ export const RecommendationSchema = z.object({
   category: z.string(),
   description: z.string(),
   estCost: z.number(),
+  costJustification: z.string().optional(),
   tags: z.array(z.string())
 });
 
