@@ -1,17 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { z } from 'zod';
-import { getGeminiApiKey, defaultGenerationConfig } from './config';
+import { getGeminiApiKeys, defaultGenerationConfig } from './config';
 import type { Result } from '../schemas/common';
-
-let genAI: GoogleGenerativeAI | null = null;
-
-const getClient = () => {
-  if (!genAI) {
-    const apiKey = getGeminiApiKey();
-    genAI = new GoogleGenerativeAI(apiKey);
-  }
-  return genAI;
-};
+import { globalApiQueue } from './apiQueue';
 
 export const safeGenerate = async <T>(
   prompt: string,
@@ -20,13 +11,16 @@ export const safeGenerate = async <T>(
   retryCount = 0
 ): Promise<Result<T>> => {
   try {
-    const client = getClient();
-    const model = client.getGenerativeModel({
-      model: modelName,
-      generationConfig: defaultGenerationConfig
+    // Submit to queue to handle rate limits, sequential execution, and deduplication
+    const result = await globalApiQueue.enqueue(prompt, modelName, async (apiKey) => {
+      const client = new GoogleGenerativeAI(apiKey);
+      const model = client.getGenerativeModel({
+        model: modelName,
+        generationConfig: defaultGenerationConfig
+      });
+      return model.generateContent(prompt);
     });
 
-    const result = await model.generateContent(prompt);
     const text = result.response.text();
     
     try {
@@ -76,7 +70,9 @@ export const safeGenerate = async <T>(
 };
 
 export const getStreamingModel = (modelName: string) => {
-  const client = getClient();
+  const keys = getGeminiApiKeys();
+  const apiKey = keys.length > 0 ? keys[0] : '';
+  const client = new GoogleGenerativeAI(apiKey);
   return client.getGenerativeModel({
     model: modelName,
     generationConfig: { temperature: 0.7 } // No JSON restriction for streaming story

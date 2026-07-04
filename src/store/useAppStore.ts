@@ -25,6 +25,12 @@ interface AppState {
   activeStep: 'profile' | 'destination' | 'dashboard' | 'itinerary';
   setActiveStep: (step: 'profile' | 'destination' | 'dashboard' | 'itinerary') => void;
 
+  // AI Pipeline State
+  aiLoadingState: 'idle' | 'recommendations' | 'hiddenGems' | 'heritage' | 'experiences' | 'events' | 'error' | 'done';
+  setAiLoadingState: (state: 'idle' | 'recommendations' | 'hiddenGems' | 'heritage' | 'experiences' | 'events' | 'error' | 'done') => void;
+  aiError: string | null;
+  setAiError: (error: string | null) => void;
+
   // Data
   profile: UserProfile | null;
   setProfile: (profile: UserProfile) => void;
@@ -68,6 +74,11 @@ export const useAppStore = create<AppState>((set) => ({
 
   activeStep: 'profile',
   setActiveStep: (activeStep) => set({ activeStep }),
+
+  aiLoadingState: 'idle',
+  setAiLoadingState: (aiLoadingState) => set({ aiLoadingState }),
+  aiError: null,
+  setAiError: (aiError) => set({ aiError }),
 
   profile: null,
   setProfile: (profile) => set({ profile }),

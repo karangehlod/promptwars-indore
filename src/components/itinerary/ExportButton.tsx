@@ -8,7 +8,7 @@ export const ExportButton: React.FC<{ elementId: string }> = ({ elementId }) => 
   const handleExport = async () => {
     setIsExporting(true);
     try {
-      await exportToPDF(elementId, 'Culturo-Itinerary.pdf');
+      await exportToPDF(elementId, 'TravelYarro-Itinerary.pdf');
     } catch (e) {
       console.error(e);
       alert('Failed to export PDF');
@@ -18,7 +18,7 @@ export const ExportButton: React.FC<{ elementId: string }> = ({ elementId }) => 
   };
 
   return (
-    <button 
+    <button
       onClick={handleExport}
       disabled={isExporting}
       className="flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-md font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 border border-border-color shadow-sm"

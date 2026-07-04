@@ -21,7 +21,7 @@ vi.mock('@google/generative-ai', () => {
 
 describe('Gemini Client safeGenerate', () => {
   beforeEach(() => {
-    vi.spyOn(config, 'getGeminiApiKey').mockReturnValue('fake-key');
+    vi.spyOn(config, 'getGeminiApiKeys').mockReturnValue(['fake-key']);
   });
 
   it('successfully parses valid JSON matching schema', async () => {

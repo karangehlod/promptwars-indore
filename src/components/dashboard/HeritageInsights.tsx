@@ -1,43 +1,21 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useAppStore } from '../../store/useAppStore';
-import { useAsyncAction } from '../../hooks/useAsyncAction';
-import { getHeritageInsights } from '../../services/agent';
 import { CardSkeleton } from '../layout/Skeleton';
-import { RefreshCw, BookOpen } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 
 export const HeritageInsights: React.FC = () => {
-  const { destination, heritage, setHeritage } = useAppStore();
-  const { execute, loading, error } = useAsyncAction(getHeritageInsights);
+  const { heritage, aiLoadingState, aiError } = useAppStore();
 
-  useEffect(() => {
-    if (heritage.length === 0 && destination && !loading) {
-      execute(destination).then(res => {
-        if (res) setHeritage(res);
-      });
+  if (heritage.length === 0) {
+    if (aiError && aiLoadingState === 'error') {
+      return null;
     }
-  }, [destination, heritage.length]);
-
-  if (loading && heritage.length === 0) {
     return (
       <div className="space-y-4">
-        <h3 className="font-bold text-lg">Heritage & History</h3>
+        <h3 className="font-bold text-lg flex items-center">Heritage & History</h3>
         <div className="space-y-3">
-          <CardSkeleton />
+          <CardSkeleton /><CardSkeleton />
         </div>
-      </div>
-    );
-  }
-
-  if (error && heritage.length === 0) {
-    return (
-      <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-        <p className="text-red-700 dark:text-red-400 mb-2">{error.message}</p>
-        <button 
-          onClick={() => execute(destination!).then(res => res && setHeritage(res))}
-          className="flex items-center text-sm font-medium text-red-700 dark:text-red-400 hover:underline"
-        >
-          <RefreshCw size={14} className="mr-1" /> Retry Heritage Insights
-        </button>
       </div>
     );
   }

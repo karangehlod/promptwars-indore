@@ -22,9 +22,14 @@ export const BudgetStyleStep: React.FC<BudgetStyleStepProps> = ({ initialBudget,
     else setStyle([...style, s]);
   };
 
+  const getBudgetLevel = (amt: number): Budget['level'] => {
+    if (amt < 20000) return 'budget';
+    if (amt < 80000) return 'mid';
+    return 'luxury';
+  };
+
   const handleNext = () => {
-    const parsedAmount = parseFloat(amount);
-    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+    if (!amount || isNaN(Number(amount))) {
       setError('Please enter a valid budget amount.');
       return;
     }
@@ -32,38 +37,33 @@ export const BudgetStyleStep: React.FC<BudgetStyleStepProps> = ({ initialBudget,
       setError('Please select at least one travel style.');
       return;
     }
+
     onNext({
-      budget: { amount: parsedAmount, currency, level },
+      budget: {
+        amount: Number(amount),
+        currency: 'INR',
+        level: getBudgetLevel(Number(amount))
+      },
       travelStyle: style
     });
   };
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <h2 className="text-2xl font-bold">Budget & Style</h2>
-        <p className="text-gray-500 dark:text-gray-400">Set your spending limits and preferred travel style.</p>
-      </div>
+    <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+      <h2 className="text-2xl font-bold mb-4">Budget & Style</h2>
+      <p className="text-gray-500 dark:text-gray-400 mb-6">How do you prefer to travel?</p>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium mb-1">Total Budget</label>
-          <div className="flex gap-2">
-            <select 
-              value={currency} 
-              onChange={e => setCurrency(e.target.value)}
-              className="px-3 py-2 border border-border-color rounded-md bg-surface-color dark:bg-gray-800"
-            >
-              <option value="USD">USD ($)</option>
-              <option value="EUR">EUR (€)</option>
-              <option value="GBP">GBP (£)</option>
-            </select>
+          <label className="block text-sm font-medium mb-2">Total Budget (INR)</label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
             <input 
               type="number"
+              placeholder="e.g. 50000"
               value={amount}
               onChange={e => setAmount(e.target.value)}
-              placeholder="e.g. 2000"
-              className="flex-1 px-3 py-2 border border-border-color rounded-md bg-surface-color dark:bg-gray-800"
+              className="w-full pl-8 pr-4 py-3 border border-border-color rounded-xl bg-surface-color dark:bg-gray-800 focus:ring-2 focus:ring-primary-500"
             />
           </div>
         </div>

@@ -29,8 +29,8 @@ describe('ProfileWizard', () => {
     fireEvent.click(screen.getByText('Next'));
     expect(screen.getByText('Please enter a valid budget amount.')).toBeInTheDocument();
     
-    const budgetInput = screen.getByPlaceholderText('e.g. 2000');
-    fireEvent.change(budgetInput, { target: { value: '1500' } });
+    const budgetInput = screen.getByPlaceholderText('e.g. 50000');
+    fireEvent.change(budgetInput, { target: { value: '150000' } });
     fireEvent.click(screen.getByText('Comfort'));
     fireEvent.click(screen.getByText('Next'));
     

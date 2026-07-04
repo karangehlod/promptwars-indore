@@ -23,8 +23,8 @@ export const ItineraryView: React.FC = () => {
         <ExportButton elementId="itinerary-export-area" />
       </div>
 
-      <div 
-        id="itinerary-export-area" 
+      <div
+        id="itinerary-export-area"
         className="bg-white dark:bg-gray-900 rounded-3xl p-6 md:p-8 border border-border-color shadow-sm space-y-8"
       >
         {/* PDF Header (only visible in export, usually hidden but we'll style it to look good) */}
@@ -32,7 +32,7 @@ export const ItineraryView: React.FC = () => {
           <div className="flex items-center space-x-2">
             <Compass className="text-primary-600" size={28} />
             <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-400">
-              Culturo
+              TravelYarro
             </h1>
           </div>
           <div className="text-right">
@@ -43,13 +43,13 @@ export const ItineraryView: React.FC = () => {
 
         <div className="flex flex-col lg:flex-row gap-8">
           <DayTimeline days={itinerary.days} />
-          
+
           <div className="w-full lg:w-80 space-y-6 flex-shrink-0">
             <MapPreview destinationName={destination.city} />
-            <BudgetBreakdown 
-              totalBudget={itinerary.totalBudget} 
-              breakdown={itinerary.budgetBreakdown} 
-              profileAmount={profile.budget.amount} 
+            <BudgetBreakdown
+              totalBudget={itinerary.totalBudget}
+              breakdown={itinerary.budgetBreakdown}
+              profileAmount={profile.budget.amount}
             />
           </div>
         </div>

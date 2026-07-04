@@ -24,7 +24,7 @@ const isMock = import.meta.env.VITE_USE_MOCKS === 'true';
 export const getRecommendations = async (profile: UserProfile, destination: Destination): Promise<Result<Recommendation[]>> => {
   if (isMock) return { success: true, data: [{ id: '1', name: 'Eiffel Tower', category: 'Landmark', description: 'Iconic tower', estCost: 30, tags: ['history', 'view'] }] };
   
-  const prompt = `Generate 5 personalized travel recommendations for ${destination.city}, ${destination.region}, ${destination.country} based on these interests: ${profile.interests.join(', ')} and a ${profile.budget.level} budget.
+  const prompt = `Generate 5 personalized travel recommendations for ${destination.city}, ${destination.region}, ${destination.country} based on these interests: ${profile.interests.join(', ')} and a ${profile.budget.level} budget. All estimated costs MUST be strictly in INR (₹) without currency symbols.
   Return a JSON array of objects matching this schema exactly:
   [{ "id": "uuid", "name": "string", "category": "string", "description": "string", "estCost": number, "tags": ["string"] }]`;
 
@@ -72,7 +72,7 @@ export const getLocalEvents = async (destination: Destination, dates: {start: st
 export const getAuthenticExperiences = async (profile: UserProfile, destination: Destination): Promise<Result<AuthenticExperience[]>> => {
   if (isMock) return { success: true, data: [{ id: '1', name: 'Cooking Class', type: 'workshop', description: 'Learn to cook pasta', estCost: 50, duration: '3 hours' }] };
 
-  const prompt = `Suggest 3 authentic local experiences (workshop, homestay, or guide) in ${destination.city} for a ${profile.budget.level} budget traveler.
+  const prompt = `Suggest 3 authentic local experiences (workshop, homestay, or guide) in ${destination.city} for a ${profile.budget.level} budget traveler. All estimated costs MUST be strictly in INR (₹) without currency symbols.
   Return a JSON array of objects:
   [{ "id": "uuid", "name": "string", "type": "workshop|homestay|guide", "description": "string", "estCost": number, "duration": "string" }]`;
 
@@ -125,9 +125,10 @@ export const generateItinerary = async (profile: UserProfile, destination: Desti
   
   Rules:
   1. Respect the ${profile.pace} pace (e.g., relaxed = fewer items with breaks, packed = full schedule).
-  2. Ensure the total cost across all items stays strictly under ${budget}.
-  3. Include a detailed day-by-day timing schedule.
-  4. Provide a budget breakdown array (categories: Food, Transport, Activities, Accommodation).
+  2. Ensure the total cost across all items stays strictly under ${budget} INR.
+  3. All costs MUST be returned as numerical values representing INR.
+  4. Include a detailed day-by-day timing schedule.
+  5. Provide a budget breakdown array (categories: Food, Transport, Activities, Accommodation).
 
   Return a single JSON object matching exactly this schema:
   {

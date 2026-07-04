@@ -6,7 +6,7 @@ describe('Zod Schemas', () => {
   it('validates a complete Profile', () => {
     const validProfile = {
       interests: ['History', 'Art'],
-      budget: { amount: 1000, currency: 'USD', level: 'mid' },
+      budget: { amount: 1500, currency: 'INR', level: 'mid' },
       travelStyle: ['Comfort'],
       dates: { start: '2024-10-01', end: '2024-10-05' },
       pace: 'moderate',

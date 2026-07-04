@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const BudgetSchema = z.object({
   amount: z.number(),
-  currency: z.string(),
+  currency: z.literal('INR'),
   level: z.enum(['budget', 'mid', 'luxury'])
 });
 
