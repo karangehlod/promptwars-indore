@@ -1,12 +1,16 @@
 import { useMemo } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, CreditCard, Compass } from 'lucide-react';
+import { Trash2, CreditCard, Compass, CalendarDays, Pencil } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { formatCurrency } from '../../utils/formatters';
 
 export function TripSummarySidebar() {
-  const { selections, removeSelection, profile, aiLoadingState } = useAppStore();
+  const selections = useAppStore(s => s.selections);
+  const removeSelection = useAppStore(s => s.removeSelection);
+  const profile = useAppStore(s => s.profile);
+  const aiLoadingState = useAppStore(s => s.aiLoadingState);
+  const setActiveStep = useAppStore(s => s.setActiveStep);
 
   const totalCost = useMemo(() => {
     return selections.reduce((sum, item) => sum + (item.estCost || 0), 0);
@@ -14,6 +18,7 @@ export function TripSummarySidebar() {
 
   const budget = profile?.budget.amount || 0;
   const isOverBudget = totalCost > budget;
+  const dates = profile?.dates;
 
   if (aiLoadingState !== 'done' && aiLoadingState !== 'error') {
     return null;
@@ -29,6 +34,23 @@ export function TripSummarySidebar() {
         <p className="text-sm text-text-secondary mt-1">
           {selections.length} items selected
         </p>
+        {/* Dates row — single source of truth display + edit shortcut */}
+        {dates && (
+          <div className="mt-2 flex items-center justify-between text-xs text-text-secondary bg-surface-elevated rounded-lg px-2.5 py-1.5 border border-border">
+            <span className="flex items-center gap-1.5">
+              <CalendarDays size={12} />
+              {dates.start} → {dates.end}
+            </span>
+            <button
+              onClick={() => setActiveStep('profile')}
+              title="Edit trip dates"
+              className="flex items-center gap-1 hover:text-primary-600 transition-colors"
+            >
+              <Pencil size={11} />
+              Edit
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-3">

@@ -1,4 +1,5 @@
 import { getGeminiApiKeys } from './config';
+import { Logger } from '../utils/logger';
 
 interface QueueItem<T> {
   taskFn: (apiKey: string) => Promise<T>;
@@ -8,7 +9,7 @@ interface QueueItem<T> {
   hash: string;
 }
 
-const DELAY_MS = 1500;
+const DELAY_MS = 700;  // ~700ms gap between requests; safe with key rotation
 const MAX_RETRIES = 3;
 const RETRY_BACKOFF = [2000, 5000, 10000];
 
@@ -98,7 +99,7 @@ class APIQueue {
         this.rotateKey(); // Switch key immediately
         
         const backoff = RETRY_BACKOFF[item.retries] || RETRY_BACKOFF[RETRY_BACKOFF.length - 1];
-        console.warn(`Rate limit hit (429). Retrying in ${backoff}ms... (Retry ${item.retries + 1}/${MAX_RETRIES})`);
+        Logger.retry(`Rate limit hit (429). Retrying in ${backoff}ms... (Retry ${item.retries + 1}/${MAX_RETRIES})`);
         
         item.retries++;
         

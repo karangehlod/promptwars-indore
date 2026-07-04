@@ -5,6 +5,7 @@ import { BudgetStyleStep } from './steps/BudgetStyleStep';
 import { DatesPaceStep } from './steps/DatesPaceStep';
 import { DietaryAccessibilityStep } from './steps/DietaryAccessibilityStep';
 import { ProfileSchema } from '../../schemas/profile';
+import { Logger } from '../../utils/logger';
 
 export const ProfileWizard: React.FC = () => {
   const { profile, setProfile, setActiveStep } = useAppStore();
@@ -20,6 +21,9 @@ export const ProfileWizard: React.FC = () => {
     const parsed = ProfileSchema.safeParse(completeData);
     
     if (parsed.success) {
+      Logger.input('Start Date set: ' + parsed.data.dates.start);
+      Logger.input('End Date set: ' + parsed.data.dates.end);
+      Logger.input('Profile context updated');
       setProfile(parsed.data);
       setActiveStep('destination');
     } else {

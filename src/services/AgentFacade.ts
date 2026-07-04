@@ -9,6 +9,7 @@ import { EventService } from './domain/EventService';
 import { ExperienceService } from './domain/ExperienceService';
 import { StoryService } from './domain/StoryService';
 import { ItineraryService } from './domain/ItineraryService';
+import { LocationValidationService } from './domain/LocationValidationService';
 
 class AgentFacade {
   public recommendations: RecommendationService;
@@ -18,6 +19,7 @@ class AgentFacade {
   public experiences: ExperienceService;
   public stories: StoryService;
   public itinerary: ItineraryService;
+  public location: LocationValidationService;
 
   constructor(provider: IAIProvider) {
     this.recommendations = new RecommendationService(provider);
@@ -27,6 +29,7 @@ class AgentFacade {
     this.experiences = new ExperienceService(provider);
     this.stories = new StoryService(provider);
     this.itinerary = new ItineraryService(provider);
+    this.location = new LocationValidationService(provider);
   }
 }
 
@@ -34,3 +37,4 @@ const isMock = import.meta.env.VITE_USE_MOCKS === 'true';
 const activeProvider = isMock ? new MockProvider() : new GeminiProvider();
 
 export const agent = new AgentFacade(activeProvider);
+

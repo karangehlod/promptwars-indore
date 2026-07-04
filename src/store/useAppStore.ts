@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { Logger } from '../utils/logger';
 import type { UserProfile } from '../schemas/profile';
 import type { Destination } from '../schemas/destination';
 import type { Recommendation } from '../schemas/recommendation';
@@ -67,9 +69,20 @@ interface AppState {
   // Generated Itinerary
   itinerary: Itinerary | null;
   setItinerary: (itinerary: Itinerary | null) => void;
+
+  // Location validation cache: key = "country|state|city"
+  validatedLocations: Record<string, boolean>;
+  cacheValidatedLocation: (key: string, valid: boolean) => void;
+
+  // Retry mechanism: increment this to re-trigger the AI pipeline after an error
+  retryTrigger: number;
+  triggerRetry: () => void;
+
+  // Persistence
+  clearData: () => void;
 }
 
-export const useAppStore = create<AppState>((set) => ({
+export const useAppStore = create<AppState>()(persist((set) => ({
   theme: 'system',
   setTheme: (theme) => set({ theme }),
 
@@ -120,5 +133,51 @@ export const useAppStore = create<AppState>((set) => ({
   })),
 
   itinerary: null,
-  setItinerary: (itinerary) => set({ itinerary })
+  setItinerary: (itinerary) => set({ itinerary }),
+
+  validatedLocations: {},
+  cacheValidatedLocation: (key, valid) => set((state) => ({
+    validatedLocations: { ...state.validatedLocations, [key]: valid }
+  })),
+
+  retryTrigger: 0,
+  triggerRetry: () => set((state) => ({
+    aiLoadingState: 'idle',
+    aiError: null,
+    retryTrigger: state.retryTrigger + 1,
+  })),
+
+  clearData: () => {
+    set({
+      hasStarted: false,
+      activeStep: 'profile',
+      profile: null,
+      destination: null,
+      recommendations: [],
+      hiddenGems: [],
+      heritage: [],
+      events: [],
+      experiences: [],
+      stories: {},
+      selections: [],
+      itinerary: null,
+      validatedLocations: {},
+      retryTrigger: 0,
+      aiLoadingState: 'idle',
+      aiError: null
+    });
+    Logger.store('State cleared successfully');
+  }
+}), {
+  name: 'travelyarro-storage',
+  onRehydrateStorage: () => {
+    Logger.init('Hydrating state from localStorage');
+    return (_state: AppState | undefined, error: unknown) => {
+      if (error) {
+        Logger.error('Failed to hydrate state: ' + String(error));
+      } else {
+        Logger.store('State restored from localStorage');
+      }
+    };
+  }
 }));

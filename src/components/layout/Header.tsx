@@ -65,7 +65,21 @@ export const Header: React.FC = () => {
               </button>
             </nav>
           )}
-          <ThemeToggle />
+          <div className="flex items-center space-x-2 border-l border-border pl-4">
+            {hasStarted && (
+              <button
+                onClick={() => {
+                  if(confirm('Are you sure you want to reset your trip? This will clear all data and start over.')) {
+                    useAppStore.getState().clearData();
+                  }
+                }}
+                className="text-xs font-medium text-text-muted hover:text-red-500 transition-colors px-2 py-1 rounded"
+              >
+                Reset Trip
+              </button>
+            )}
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </header>

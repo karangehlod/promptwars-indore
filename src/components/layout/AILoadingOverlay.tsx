@@ -12,7 +12,9 @@ const steps = [
 ];
 
 export const AILoadingOverlay: React.FC = () => {
-  const { aiLoadingState, aiError, setAiLoadingState, setAiError } = useAppStore();
+  const aiLoadingState = useAppStore(s => s.aiLoadingState);
+  const aiError = useAppStore(s => s.aiError);
+  const triggerRetry = useAppStore(s => s.triggerRetry);
 
   if (aiLoadingState === 'idle' || aiLoadingState === 'done') {
     return null;
@@ -58,13 +60,10 @@ export const AILoadingOverlay: React.FC = () => {
                   You've hit the AI usage limit for now. Please wait a moment before trying again, or configure multiple API keys.
                 </p>
                 <button
-                  onClick={() => {
-                    setAiLoadingState('idle');
-                    setAiError(null);
-                  }}
+                  onClick={triggerRetry}
                   className="mt-4 px-6 py-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 transition"
                 >
-                  Close & Retry Later
+                  Retry
                 </button>
               </div>
             ) : (
