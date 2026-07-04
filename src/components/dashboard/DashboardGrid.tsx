@@ -13,6 +13,9 @@ import { useToast } from '../../hooks/useToast';
 import { TripSummarySidebar } from '../itinerary/TripSummarySidebar';
 import { Logger } from '../../utils/logger';
 
+import { MoodExplorer } from './MoodExplorer';
+import { NeighborhoodsCard } from './NeighborhoodsCard';
+
 export const DashboardGrid: React.FC = () => {
   // ── Stable individual selectors (no object destructure) ──────────────────
   const profile = useAppStore(s => s.profile);
@@ -146,6 +149,9 @@ export const DashboardGrid: React.FC = () => {
           <h2 className="text-3xl font-bold">Discover {destination.city}</h2>
           <p className="text-text-secondary">We've tailored these suggestions just for you.</p>
         </div>
+
+        <MoodExplorer />
+        <NeighborhoodsCard />
 
         <RecommendationsPanel onOpenStory={(id, name) => setActiveStory({ id, name })} />
         <HiddenGemsPanel onOpenStory={(id, name) => setActiveStory({ id, name })} />

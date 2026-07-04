@@ -22,4 +22,8 @@ export class Logger {
   static retry(message: string) {
     console.warn(`[RETRY] %c${message}`, 'color: #f97316; font-weight: bold;');
   }
+
+  static cache(message: string) {
+    console.log(`[CACHE] %c${message}`, 'color: #06b6d4; font-weight: bold;');
+  }
 }

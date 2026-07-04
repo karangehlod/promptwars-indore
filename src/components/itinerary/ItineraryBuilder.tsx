@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
-import { generateItinerary } from '../../services/agent';
+import { agent } from '../../services/AgentFacade';
 import { ItineraryView } from './ItineraryView';
 import { EmptyState } from '../layout/EmptyState';
 import { CardSkeleton } from '../layout/Skeleton';
@@ -22,20 +22,20 @@ export const ItineraryBuilder: React.FC = () => {
     const end = new Date(profile.dates.end);
     const days = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1);
 
-    const result = await generateItinerary(
-      profile, 
-      destination, 
-      selections, 
-      days, 
-      profile.budget.amount
-    );
+    try {
+      const result = await agent.itinerary.generateItinerary(
+        profile, 
+        destination, 
+        selections, 
+        days, 
+        profile.budget.amount
+      );
 
-    setIsGenerating(false);
-
-    if (result.success) {
-      setItinerary(result.data);
-    } else {
-      setError(result.error.message || 'Failed to generate itinerary');
+      setItinerary(result);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to generate itinerary');
+    } finally {
+      setIsGenerating(false);
     }
   };
 

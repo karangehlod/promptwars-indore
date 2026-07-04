@@ -6,16 +6,21 @@ import { useFilteredList } from '../../hooks/useFilteredList';
 import { MapPin, ArrowRight, Search, LayoutGrid } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatters';
 
+import { matchMood } from '../../utils/moodFilter';
+
 export const RecommendationsPanel: React.FC<{ onOpenStory: (id: string, name: string) => void }> = ({ onOpenStory }) => {
-  const { recommendations, selections, addSelection, removeSelection } = useAppStore();
+  const { recommendations, selections, addSelection, removeSelection, activeMood } = useAppStore();
   const [compareMode, setCompareMode] = useState(false);
   const [compareIds, setCompareIds] = useState<string[]>([]);
+
+  // Apply mood filtering first
+  const moodFilteredRecommendations = recommendations.filter(rec => matchMood(rec, activeMood));
 
   const {
     searchTerm, setSearchTerm,
     selectedCategory, setSelectedCategory,
     filteredItems, categories
-  } = useFilteredList(recommendations, 'name', 'category');
+  } = useFilteredList(moodFilteredRecommendations, 'name', 'category');
 
   if (!recommendations.length) return null;
 
@@ -98,7 +103,12 @@ export const RecommendationsPanel: React.FC<{ onOpenStory: (id: string, name: st
         </div>
       )}
 
-      <StaggeredGrid dataFetchId={recommendations.length}>
+      {filteredItems.length === 0 ? (
+        <div className="text-center py-10 bg-surface rounded-2xl border border-border text-text-secondary">
+          No places found matching the filters or active vibe. Try selecting another mood above!
+        </div>
+      ) : (
+        <StaggeredGrid dataFetchId={recommendations.length}>
         {filteredItems.map((rec) => {
           const isSelected = selections.some(s => s.id === rec.id);
           const isComparing = compareIds.includes(rec.id);
@@ -145,11 +155,6 @@ export const RecommendationsPanel: React.FC<{ onOpenStory: (id: string, name: st
           );
         })}
       </StaggeredGrid>
-      
-      {filteredItems.length === 0 && (
-        <div className="text-center py-10 text-text-secondary">
-          No recommendations found matching your filters.
-        </div>
       )}
     </section>
   );

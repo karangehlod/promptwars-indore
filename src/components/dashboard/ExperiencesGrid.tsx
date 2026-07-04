@@ -5,10 +5,14 @@ import { StaggeredGrid } from '../ui/StaggeredGrid';
 import { Compass, ArrowRight } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatters';
 
+import { matchMood } from '../../utils/moodFilter';
+
 export const ExperiencesGrid: React.FC<{ onOpenStory: (id: string, name: string) => void }> = ({ onOpenStory }) => {
-  const { experiences, selections, addSelection, removeSelection } = useAppStore();
+  const { experiences, selections, addSelection, removeSelection, activeMood } = useAppStore();
 
   if (!experiences.length) return null;
+
+  const filteredExperiences = experiences.filter(exp => matchMood(exp, activeMood));
 
   const handleSelect = (exp: any) => {
     const isSelected = selections.some(s => s.id === exp.id);
@@ -31,9 +35,14 @@ export const ExperiencesGrid: React.FC<{ onOpenStory: (id: string, name: string)
         <h3 className="text-2xl font-bold">Authentic Experiences</h3>
       </div>
       
-      <StaggeredGrid dataFetchId={experiences.length}>
-        {experiences.map((exp) => {
-          const isSelected = selections.some(s => s.id === exp.id);
+      {filteredExperiences.length === 0 ? (
+        <div className="text-center py-8 bg-surface rounded-2xl border border-border text-text-secondary">
+          No authentic experiences match your active vibe.
+        </div>
+      ) : (
+        <StaggeredGrid dataFetchId={filteredExperiences.length}>
+          {filteredExperiences.map((exp) => {
+            const isSelected = selections.some(s => s.id === exp.id);
           
           return (
             <Card 
@@ -71,6 +80,7 @@ export const ExperiencesGrid: React.FC<{ onOpenStory: (id: string, name: string)
           );
         })}
       </StaggeredGrid>
+      )}
     </section>
   );
 };

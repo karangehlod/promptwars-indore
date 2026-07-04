@@ -60,6 +60,10 @@ interface AppState {
   stories: Record<string, string>;
   setStory: (key: string, text: string) => void;
 
+  // Active Mood Filter
+  activeMood: string | null;
+  setActiveMood: (mood: string | null) => void;
+
   // Selections for Itinerary
   selections: SelectedItem[];
   addSelection: (item: SelectedItem) => void;
@@ -121,6 +125,9 @@ export const useAppStore = create<AppState>()(persist((set) => ({
     stories: { ...state.stories, [key]: text }
   })),
 
+  activeMood: null,
+  setActiveMood: (activeMood) => set({ activeMood }),
+
   selections: [],
   addSelection: (item) => set((state) => ({
     selections: state.selections.some(s => s.id === item.id) 
@@ -163,7 +170,8 @@ export const useAppStore = create<AppState>()(persist((set) => ({
       validatedLocations: {},
       retryTrigger: 0,
       aiLoadingState: 'idle',
-      aiError: null
+      aiError: null,
+      activeMood: null
     });
     Logger.store('State cleared successfully');
   }

@@ -11,9 +11,8 @@ export class EventService {
   }
 
   public async getLocalEvents(destination: Destination, dates: {start: string, end: string}): Promise<LocalEvent[]> {
-    const prompt = `Suggest 3 local events or seasonal festivals happening in ${destination.city} around ${dates.start} to ${dates.end}.
-Return a JSON array of objects:
-[{ "id": "uuid", "name": "string", "date": "string", "description": "string", "ticketInfo": "string (optional)" }]`;
+    const prompt = `3 local events/festivals in ${destination.city} between ${dates.start} and ${dates.end}.
+JSON array: [{"id":"uuid","name":"string","date":"string","description":"string","ticketInfo":"string (optional)"}]`;
 
     const schema = z.array(LocalEventSchema);
     return this.ai.generateStructured(prompt, schema, MODEL_FAST);

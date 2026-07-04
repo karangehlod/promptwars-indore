@@ -11,9 +11,8 @@ export class HeritageService {
   }
 
   public async getHeritageInsights(destination: Destination): Promise<HeritageInsight[]> {
-    const prompt = `Provide 3 key heritage and historical insights about ${destination.city}, ${destination.region}, ${destination.country}.
-Return a JSON array of objects:
-[{ "title": "string", "period": "string", "summary": "string", "significance": "string" }]`;
+    const prompt = `3 heritage insights for ${destination.city}, ${destination.country}.
+JSON array: [{"title":"string","period":"string","summary":"string","significance":"string"}]`;
 
     const schema = z.array(HeritageInsightSchema);
     return this.ai.generateStructured(prompt, schema, MODEL_FAST);

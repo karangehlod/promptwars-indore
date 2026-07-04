@@ -1,5 +1,7 @@
+// Cost optimization: use only Flash-tier models (cheaper & faster).
+// gemini-2.5-flash handles structured JSON and short stories well at a fraction of Pro's cost.
 export const MODEL_FAST = 'gemini-2.5-flash';
-export const MODEL_DEEP = 'gemini-2.5-pro';
+export const MODEL_DEEP = 'gemini-2.5-flash'; // Kept as alias so itinerary stays on Flash
 
 export const getGeminiApiKeys = (): string[] => {
   const keyString = import.meta.env.VITE_GEMINI_API_KEY;
@@ -15,7 +17,7 @@ export const getGeminiApiKeys = (): string[] => {
 export const defaultGenerationConfig = {
   temperature: 0.7,
   responseMimeType: 'application/json',
-  maxOutputTokens: 8193,
+  maxOutputTokens: 2048,
   thinkingConfig: { thinkingBudget: 0 },
 };
 
@@ -23,5 +25,6 @@ export const defaultGenerationConfig = {
 export const deepGenerationConfig = {
   temperature: 0.6,
   responseMimeType: 'application/json',
-  maxOutputTokens: 16200,
+  maxOutputTokens: 4096,
+  thinkingConfig: { thinkingBudget: 0 },
 };

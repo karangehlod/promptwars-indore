@@ -12,9 +12,8 @@ export class HiddenGemService {
   }
 
   public async getHiddenGems(profile: UserProfile, destination: Destination): Promise<HiddenGem[]> {
-    const prompt = `Discover 3 hidden gems in ${destination.city}, ${destination.country} avoiding tourist traps, tailored for someone who likes ${profile.interests.join(', ')}.
-Return a JSON array of objects:
-[{ "id": "uuid", "name": "string", "description": "string", "whyHidden": "string", "location": "string" }]`;
+    const prompt = `3 hidden gems in ${destination.city}, ${destination.country} (avoid tourist traps). Interests: ${profile.interests.join(', ')}.
+JSON array: [{"id":"uuid","name":"string","description":"string","whyHidden":"string","location":"string"}]`;
 
     const schema = z.array(HiddenGemSchema);
     return this.ai.generateStructured(prompt, schema, MODEL_FAST);

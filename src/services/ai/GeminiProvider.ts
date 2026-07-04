@@ -13,7 +13,7 @@ export class GeminiProvider implements IAIProvider {
     let text = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
 
     // Find the first opening bracket/brace
-    const firstBracket = text.search(/[\[{]/);
+    const firstBracket = text.search(/[[{]/);
     if (firstBracket === -1) throw new SyntaxError('No JSON structure found in response');
     text = text.slice(firstBracket);
 
@@ -61,20 +61,22 @@ export class GeminiProvider implements IAIProvider {
         const parsed = JSON.parse(cleanJson);
         const validated = schema.parse(parsed);
         return validated;
-      } catch (e: any) {
-        Logger.error(`JSON parse/validate failed (attempt ${retryCount + 1}): ${e.message}`);
+      } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
+        Logger.error(`JSON parse/validate failed (attempt ${retryCount + 1}): ${message}`);
         if (retryCount < 1) {
-          const fixPrompt = `${prompt}\n\nCRITICAL: Your previous response was invalid JSON. Respond ONLY with a single valid, complete JSON ${text.trim().startsWith('[') ? 'array' : 'object'}. No markdown, no explanation, no trailing text. Error was: ${e.message}`;
+          const fixPrompt = `${prompt}\n\nCRITICAL: Your previous response was invalid JSON. Respond ONLY with a single valid, complete JSON ${text.trim().startsWith('[') ? 'array' : 'object'}. No markdown, no explanation, no trailing text. Error was: ${message}`;
           return this.generateStructured(fixPrompt, schema, modelName, retryCount + 1);
         }
-        throw new ValidationError(`Validation failed after retry: ${e.message}`);
+        throw new ValidationError(`Validation failed after retry: ${message}`);
       }
     } catch (error: any) {
       if (error instanceof ValidationError) throw error;
 
-      const isRateLimit = error.message?.toLowerCase().includes('429') ||
-                          error.message?.toLowerCase().includes('quota') ||
-                          error.status === 429;
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const isRateLimit = errorMessage.toLowerCase().includes('429') ||
+                          errorMessage.toLowerCase().includes('quota') ||
+                          (typeof error === 'object' && error !== null && 'status' in error && (error as { status: unknown }).status === 429);
 
       if (isRateLimit) {
         Logger.error('Gemini API failed (429) - Quota Exceeded');
@@ -95,7 +97,7 @@ export class GeminiProvider implements IAIProvider {
         model: modelName,
         generationConfig: {
           temperature: 0.85,
-          maxOutputTokens: 800, // Stories are short — 800 tokens ≈ 600 words
+          maxOutputTokens: 1028, // Stories are short — 1028 tokens ≈ 750 words
         },
       });
 

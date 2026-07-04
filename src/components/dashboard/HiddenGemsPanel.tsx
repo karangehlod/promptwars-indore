@@ -4,10 +4,14 @@ import { Card } from '../ui/Card';
 import { StaggeredGrid } from '../ui/StaggeredGrid';
 import { EyeOff, ArrowRight } from 'lucide-react';
 
+import { matchMood } from '../../utils/moodFilter';
+
 export const HiddenGemsPanel: React.FC<{ onOpenStory: (id: string, name: string) => void }> = ({ onOpenStory }) => {
-  const { hiddenGems, selections, addSelection, removeSelection } = useAppStore();
+  const { hiddenGems, selections, addSelection, removeSelection, activeMood } = useAppStore();
 
   if (!hiddenGems.length) return null;
+
+  const filteredGems = hiddenGems.filter(gem => matchMood(gem, activeMood));
 
   const handleSelect = (gem: any) => {
     const isSelected = selections.some(s => s.id === gem.id);
@@ -30,9 +34,14 @@ export const HiddenGemsPanel: React.FC<{ onOpenStory: (id: string, name: string)
         <h3 className="text-2xl font-bold">Hidden Gems</h3>
       </div>
       
-      <StaggeredGrid dataFetchId={hiddenGems.length}>
-        {hiddenGems.map((gem) => {
-          const isSelected = selections.some(s => s.id === gem.id);
+      {filteredGems.length === 0 ? (
+        <div className="text-center py-8 bg-surface rounded-2xl border border-border text-text-secondary">
+          No hidden gems match your active vibe.
+        </div>
+      ) : (
+        <StaggeredGrid dataFetchId={filteredGems.length}>
+          {filteredGems.map((gem) => {
+            const isSelected = selections.some(s => s.id === gem.id);
           
           return (
             <Card 
@@ -68,6 +77,7 @@ export const HiddenGemsPanel: React.FC<{ onOpenStory: (id: string, name: string)
           );
         })}
       </StaggeredGrid>
+      )}
     </section>
   );
 };

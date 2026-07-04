@@ -26,12 +26,8 @@ export class StoryService {
     const focus = THEME_FOCUS[theme] || theme;
     const interests = profile.interests.slice(0, 3).join(', ');
 
-    // Short, punchy prompt — Flash handles this well at ~800 tokens
-    const prompt = `You are a storytelling travel guide. Write a vivid, engaging story (200–250 words) about ${placeName}, India, focusing on ${focus}.
-Tailor the tone for a traveler interested in: ${interests}.
-Write in second person ("you") to make it immersive.
-Do NOT use markdown, headers, or bullet points — plain text paragraphs only.
-Start directly with the story, no preamble.`;
+    // Short, punchy prompt — Flash handles this well at 1028 tokens
+    const prompt = `Storytelling travel guide. Write a vivid 200–250 word story about ${placeName}, India, focusing on ${focus}. Audience interests: ${interests}. Use second person. Plain text only, no markdown. Start directly.`;
 
     Logger.ai(`Generating story for "${placeName}" — theme: ${theme}`);
     return this.ai.generateStream(prompt, MODEL_FAST, onChunk);

@@ -142,9 +142,9 @@ describe('DestinationInput', () => {
     fireEvent.change(cityInput, { target: { value: 'Pone' } });
     fireEvent.click(screen.getByText('Verify Location'));
 
-    await waitFor(() => screen.getByText(/Did you mean Pune/i));
+    await waitFor(() => screen.getByText(/Did you mean Pune, Maharashtra\?/i));
 
-    const correctionBtn = screen.getByText(/Did you mean Pune/i);
+    const correctionBtn = screen.getByText(/Did you mean Pune, Maharashtra\?/i);
     fireEvent.click(correctionBtn);
 
     // Correction applied, but proceed still disabled (requires re-validation)

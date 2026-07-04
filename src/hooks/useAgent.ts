@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { AgentError } from '../services/ai/AgentError';
 
-export function useAgent<TArgs extends any[], TResult>(
+export function useAgent<TArgs extends unknown[], TResult>(
   agentFn: (...args: TArgs) => Promise<TResult>
 ) {
   const [data, setData] = useState<TResult | null>(null);
@@ -16,11 +16,12 @@ export function useAgent<TArgs extends any[], TResult>(
         const result = await agentFn(...args);
         setData(result);
         return result;
-      } catch (err: any) {
+      } catch (err) {
         if (err instanceof AgentError) {
           setError(err);
         } else {
-          setError(new AgentError(err.message || 'Unknown error occurred'));
+          const message = err instanceof Error ? err.message : 'Unknown error occurred';
+          setError(new AgentError(message));
         }
         return null;
       } finally {

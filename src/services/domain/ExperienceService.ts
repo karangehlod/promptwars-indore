@@ -12,12 +12,9 @@ export class ExperienceService {
   }
 
   public async getAuthenticExperiences(profile: UserProfile, destination: Destination): Promise<AuthenticExperience[]> {
-    const prompt = `Suggest 3 authentic local experiences (workshop, homestay, or guide) in ${destination.city} for a ${profile.budget.level} budget traveler. 
-All estimated costs MUST be strictly in INR (₹) without currency symbols.
-IMPORTANT COST GUARDRAIL: Do not hallucinate costs. Provide an exact estimated cost in INR, and provide a short 'costJustification' explaining why it costs that much (e.g., 'Typical daily rate for a local guide' or 'Average cost for a 3-hour workshop').
-
-Return a JSON array of objects:
-[{ "id": "uuid", "name": "string", "type": "workshop|homestay|guide", "description": "string", "estCost": number, "costJustification": "string", "duration": "string" }]`;
+    const prompt = `3 authentic local experiences (workshop|homestay|guide) in ${destination.city}. Budget: ${profile.budget.level}.
+Costs in INR (numbers only). Add brief costJustification.
+JSON array: [{"id":"uuid","name":"string","type":"workshop|homestay|guide","description":"string","estCost":number,"costJustification":"string","duration":"string"}]`;
 
     const schema = z.array(AuthenticExperienceSchema);
     return this.ai.generateStructured(prompt, schema, MODEL_FAST);
