@@ -80,16 +80,16 @@ export const getAuthenticExperiences = async (profile: UserProfile, destination:
   return safeGenerate(prompt, schema, MODEL_FAST);
 };
 
-// 6. Generate Story (Streaming)
+// 6. Generate Story (Streaming) — uses MODEL_FAST; Pro quota exhausted on free tier
 export const generateStoryStream = async (placeName: string, theme: string, profile: UserProfile, onChunk: (text: string) => void): Promise<void> => {
   if (isMock) {
     onChunk("Once upon a time in " + placeName + "...");
     return;
   }
-  
-  const prompt = `Write a short, engaging storytelling narrative about ${placeName} focusing on the theme of ${theme}. Tailor the tone for a traveler interested in ${profile.interests.join(', ')}. Do not use markdown.`;
-  const model = getStreamingModel(MODEL_DEEP);
-  
+
+  const prompt = `You are a storytelling travel guide. Write a vivid, engaging story (200–250 words) about ${placeName}, India, focusing on ${theme}. Tailor the tone for a traveler interested in ${profile.interests.join(', ')}. Write in second person. Plain text only, no markdown.`;
+  const model = getStreamingModel(MODEL_FAST);
+
   try {
     const result = await model.generateContentStream(prompt);
     for await (const chunk of result.stream) {
@@ -115,7 +115,7 @@ export const generateItinerary = async (profile: UserProfile, destination: Desti
     };
   }
 
-  const selectionsList = selections.map(s => `${s.name} (${s.type}, est. $${s.estCost || 0})`).join(', ');
+  const selectionsList = selections.map(s => `${s.name} (${s.type}, est. ₹${s.estCost || 0})`).join(', ');
 
   const prompt = `Create a detailed ${days}-day itinerary for ${destination.city}.
   User Profile: Pace is ${profile.pace}, Budget is ${budget} ${profile.budget.currency} (${profile.budget.level}).

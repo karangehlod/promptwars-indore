@@ -1,8 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
-import { LocationValidationService } from '../../services/domain/LocationValidationService';
-import type { IAIProvider } from '../../services/ai/IAIProvider';
-import type { LocationValidation } from '../../schemas/location';
-import { z } from 'zod';
+import { LocationValidationService } from '../services/domain/LocationValidationService';
+import type { IAIProvider } from '../services/ai/IAIProvider';
+import type { LocationValidation } from '../schemas/location';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -77,13 +76,13 @@ describe('LocationValidationService', () => {
 
 describe('LocationValidationSchema', () => {
   it('parses a minimal valid response', async () => {
-    const { LocationValidationSchema } = await import('../../schemas/location');
+    const { LocationValidationSchema } = await import('../schemas/location');
     const result = LocationValidationSchema.safeParse({ valid: true, confidence: 'high' });
     expect(result.success).toBe(true);
   });
 
   it('parses a full response with optional fields', async () => {
-    const { LocationValidationSchema } = await import('../../schemas/location');
+    const { LocationValidationSchema } = await import('../schemas/location');
     const result = LocationValidationSchema.safeParse({
       valid: false,
       confidence: 'medium',
@@ -95,7 +94,7 @@ describe('LocationValidationSchema', () => {
   });
 
   it('rejects invalid confidence values', async () => {
-    const { LocationValidationSchema } = await import('../../schemas/location');
+    const { LocationValidationSchema } = await import('../schemas/location');
     const result = LocationValidationSchema.safeParse({ valid: true, confidence: 'super' });
     expect(result.success).toBe(false);
   });

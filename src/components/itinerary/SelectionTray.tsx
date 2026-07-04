@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { ListChecks, X, Calendar } from 'lucide-react';
+import { formatCurrency } from '../../utils/formatters';
 
 export const SelectionTray: React.FC = () => {
   const { selections, removeSelection, profile, setActiveStep } = useAppStore();
@@ -37,7 +38,7 @@ export const SelectionTray: React.FC = () => {
           <div className="text-right">
             <div className="text-xs text-gray-500 dark:text-gray-400">Est. Total Cost</div>
             <div className={`font-bold ${isOverBudget ? 'text-red-500' : 'text-gray-900 dark:text-gray-100'}`}>
-              ${totalCost}
+              {formatCurrency(totalCost, 'INR')}
             </div>
           </div>
           

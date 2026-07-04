@@ -2,8 +2,8 @@ import { z } from 'zod';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { IAIProvider } from './IAIProvider';
 import { globalApiQueue } from '../apiQueue';
-import { defaultGenerationConfig, deepGenerationConfig, getGeminiApiKeys, MODEL_DEEP } from '../config';
-import { AgentError, RateLimitError, ValidationError, NetworkError } from './AgentError';
+import { defaultGenerationConfig, deepGenerationConfig, MODEL_DEEP } from '../config';
+import { RateLimitError, ValidationError, NetworkError } from './AgentError';
 import { Logger } from '../../utils/logger';
 
 export class GeminiProvider implements IAIProvider {
@@ -87,26 +87,35 @@ export class GeminiProvider implements IAIProvider {
   }
 
   public async generateStream(prompt: string, modelName: string, onChunk: (text: string) => void): Promise<void> {
-    const keys = getGeminiApiKeys();
-    const apiKey = keys.length > 0 ? keys[0] : '';
-    if (!apiKey) {
-      throw new AgentError('No API Key provided');
-    }
+    // Route through apiQueue for: key rotation, throttling, 429 retry, and in-memory caching
+    // We accumulate chunks into a full text, cache it, then stream it to the caller
+    const result = await globalApiQueue.enqueue(prompt, modelName, async (apiKey) => {
+      const client = new GoogleGenerativeAI(apiKey);
+      const model = client.getGenerativeModel({
+        model: modelName,
+        generationConfig: {
+          temperature: 0.85,
+          maxOutputTokens: 800, // Stories are short — 800 tokens ≈ 600 words
+        },
+      });
 
-    const client = new GoogleGenerativeAI(apiKey);
-    const model = client.getGenerativeModel({
-      model: modelName,
-      generationConfig: { temperature: 0.7 } // No JSON restriction
+      try {
+        const streamResult = await model.generateContentStream(prompt);
+        let fullText = '';
+        for await (const chunk of streamResult.stream) {
+          fullText += chunk.text();
+        }
+        // Return the full text as a mock "response" object so apiQueue can cache it
+        return { text: fullText };
+      } catch (error: any) {
+        Logger.error(`Story stream failed: ${error.message}`);
+        throw error;
+      }
     });
 
-    try {
-      const result = await model.generateContentStream(prompt);
-      for await (const chunk of result.stream) {
-        onChunk(chunk.text());
-      }
-    } catch (error: any) {
-      console.error("Story streaming failed", error);
-      throw new NetworkError('Streaming failed: ' + error.message);
+    // Deliver the cached/fresh text as a single chunk (the UI handles its own animation)
+    if (result?.text) {
+      onChunk(result.text);
     }
   }
 }

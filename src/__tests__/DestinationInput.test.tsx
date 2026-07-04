@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { DestinationInput } from '../../components/destination/DestinationInput';
+import { DestinationInput } from '../components/destination/DestinationInput';
 
 // Mock the store
 const mockStore: any = {

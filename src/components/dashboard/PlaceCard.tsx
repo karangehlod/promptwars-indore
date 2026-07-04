@@ -2,6 +2,7 @@ import React from 'react';
 import { Plus, Check, MapPin } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import type { SelectedItem } from '../../store/useAppStore';
+import { formatCurrency } from '../../utils/formatters';
 
 interface PlaceCardProps {
   id: string;
@@ -64,7 +65,7 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({
         </div>
         {estCost !== undefined && (
           <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-            ${estCost}
+            {formatCurrency(estCost, 'INR')}
           </span>
         )}
       </div>

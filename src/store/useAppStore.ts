@@ -8,7 +8,6 @@ import type { HiddenGem } from '../schemas/hiddenGem';
 import type { HeritageInsight } from '../schemas/heritage';
 import type { LocalEvent } from '../schemas/event';
 import type { AuthenticExperience } from '../schemas/experience';
-import type { Story } from '../schemas/story';
 import type { Itinerary } from '../schemas/itinerary';
 
 export type SelectedItem = {
@@ -57,9 +56,9 @@ interface AppState {
   experiences: AuthenticExperience[];
   setExperiences: (experiences: AuthenticExperience[]) => void;
 
-  // Stories map placeId -> Story
-  stories: Record<string, Story>;
-  setStory: (placeId: string, story: Story) => void;
+  // Stories: key = "placeId::theme" → story text
+  stories: Record<string, string>;
+  setStory: (key: string, text: string) => void;
 
   // Selections for Itinerary
   selections: SelectedItem[];
@@ -118,8 +117,8 @@ export const useAppStore = create<AppState>()(persist((set) => ({
   setExperiences: (experiences) => set({ experiences }),
 
   stories: {},
-  setStory: (placeId, story) => set((state) => ({ 
-    stories: { ...state.stories, [placeId]: story } 
+  setStory: (key, text) => set((state) => ({
+    stories: { ...state.stories, [key]: text }
   })),
 
   selections: [],

@@ -120,6 +120,7 @@ export function TripSummarySidebar() {
         </div>
 
         <button 
+          onClick={() => setActiveStep('itinerary')}
           disabled={selections.length === 0}
           className="w-full py-2.5 bg-accent hover:bg-accent-hover disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-colors shadow-sm"
         >
