@@ -79,12 +79,23 @@ export class GeminiProvider implements IAIProvider {
                           (typeof error === 'object' && error !== null && 'status' in error && (error as { status: unknown }).status === 429);
 
       if (isRateLimit) {
+        // Try to extract retry-after from error response
+        let retryAfter: number | undefined;
+        if (typeof error === 'object' && error !== null && 'response' in error) {
+          const response = (error as { response?: { headers?: { 'retry-after'?: string } } }).response;
+          if (response?.headers?.['retry-after']) {
+            retryAfter = parseInt(response.headers['retry-after'], 10) * 1000; // Convert to ms
+          }
+        }
+        // Default to 60 seconds if no retry-after header
+        if (!retryAfter) retryAfter = 60000;
+        
         Logger.error('Gemini API failed (429) - Quota Exceeded');
-        throw new RateLimitError(error.message || 'API Quota Exceeded');
+        throw new RateLimitError(errorMessage || 'API Quota Exceeded. Please retry in a few minutes.', retryAfter);
       }
 
-      Logger.error(`Gemini API error: ${error.message}`);
-      throw new NetworkError(error.message || 'Network error connecting to AI provider');
+      Logger.error(`Gemini API error: ${errorMessage}`);
+      throw new NetworkError(errorMessage || 'Network error connecting to AI provider');
     }
   }
 

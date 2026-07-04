@@ -20,8 +20,11 @@ export class ValidationError extends AgentError {
 }
 
 export class RateLimitError extends AgentError {
-  constructor(message: string) {
+  public readonly retryAfter?: number;
+
+  constructor(message: string, retryAfter?: number) {
     super(message);
     this.name = 'RateLimitError';
+    this.retryAfter = retryAfter;
   }
 }

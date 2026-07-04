@@ -9,11 +9,55 @@ export const exportToPDF = async (elementId: string, filename: string = 'TravelY
   }
 
   try {
+    // Check if this is the itinerary export area with pagination
+    const isItineraryExport = elementId === 'itinerary-export-area';
+    let originalDisplay: Record<string, string> = {};
+    
+    if (isItineraryExport) {
+      // Temporarily show all day cards for PDF export
+      const dayCards = element.querySelectorAll('[data-day-card]');
+      dayCards.forEach((card, index) => {
+        const el = card as HTMLElement;
+        originalDisplay[`day-${index}`] = el.style.display;
+        el.style.display = 'block';
+        el.setAttribute('data-pdf-visible', 'true');
+      });
+      
+      // Hide pagination controls during export
+      const pagination = element.querySelector('[data-pagination]');
+      if (pagination) {
+        const el = pagination as HTMLElement;
+        originalDisplay.pagination = el.style.display;
+        el.style.display = 'none';
+      }
+    }
+
+    // Small delay to let DOM update
+    await new Promise(r => setTimeout(r, 100));
+
     const canvas = await html2canvas(element, {
-      scale: 2, // Higher resolution
+      scale: 2,
       useCORS: true,
       logging: false,
+      windowWidth: element.scrollWidth,
+      windowHeight: element.scrollHeight,
     });
+
+    // Restore original display
+    if (isItineraryExport) {
+      const dayCards = element.querySelectorAll('[data-day-card]');
+      dayCards.forEach((card, index) => {
+        const el = card as HTMLElement;
+        el.style.display = originalDisplay[`day-${index}`] || '';
+        el.removeAttribute('data-pdf-visible');
+      });
+      
+      const pagination = element.querySelector('[data-pagination]');
+      if (pagination) {
+        const el = pagination as HTMLElement;
+        el.style.display = originalDisplay.pagination || '';
+      }
+    }
 
     const imgData = canvas.toDataURL('image/png');
 

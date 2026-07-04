@@ -4,7 +4,9 @@ import { agent } from '../../services/AgentFacade';
 import { ItineraryView } from './ItineraryView';
 import { EmptyState } from '../layout/EmptyState';
 import { CardSkeleton } from '../layout/Skeleton';
-import { Calendar, Wand2, AlertCircle } from 'lucide-react';
+import { Calendar, Wand2, AlertCircle, RefreshCw, Clock } from 'lucide-react';
+import { useToast } from '../../hooks/useToast';
+import { RateLimitError } from '../../services/ai/AgentError';
 
 export const ItineraryBuilder: React.FC = () => {
   const { profile, destination, selections, itinerary, setItinerary, setActiveStep } = useAppStore();
@@ -33,7 +35,12 @@ export const ItineraryBuilder: React.FC = () => {
 
       setItinerary(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate itinerary');
+      if (err instanceof RateLimitError) {
+        const retryMinutes = Math.ceil((err.retryAfter || 60000) / 60000);
+        setError(`API quota exceeded. Please wait ${retryMinutes} minute${retryMinutes > 1 ? 's' : ''} and try again.`);
+      } else {
+        setError(err instanceof Error ? err.message : 'Failed to generate itinerary');
+      }
     } finally {
       setIsGenerating(false);
     }
