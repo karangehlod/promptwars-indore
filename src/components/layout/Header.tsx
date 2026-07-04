@@ -4,14 +4,16 @@ import { ThemeToggle } from './ThemeToggle';
 import { useAppStore } from '../../store/useAppStore';
 
 export const Header: React.FC = () => {
-  const { activeStep, setActiveStep } = useAppStore();
+  const { activeStep, setActiveStep, hasStarted, profile, destination } = useAppStore();
 
   return (
-    <header className="sticky top-0 z-50 w-full backdrop-blur-md bg-surface-color/80 border-b border-border-color shadow-sm">
+    <header className="sticky top-0 z-50 w-full backdrop-blur-md bg-surface/80 border-b border-border shadow-sm">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div
           className="flex items-center space-x-2 cursor-pointer"
-          onClick={() => setActiveStep('profile')}
+          onClick={() => {
+            if (hasStarted) setActiveStep('profile');
+          }}
         >
           <Compass className="w-8 h-8 text-primary-600 dark:text-primary-500" />
           <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-400">
@@ -20,32 +22,49 @@ export const Header: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-6">
-          <nav className="hidden md:flex items-center space-x-4 text-sm font-medium text-gray-600 dark:text-gray-300">
-            <button
-              onClick={() => setActiveStep('profile')}
-              className={`hover:text-primary-600 dark:hover:text-primary-400 transition-colors ${activeStep === 'profile' ? 'text-primary-600 dark:text-primary-400' : ''}`}
-            >
-              Profile
-            </button>
-            <button
-              onClick={() => setActiveStep('destination')}
-              className={`hover:text-primary-600 dark:hover:text-primary-400 transition-colors ${activeStep === 'destination' ? 'text-primary-600 dark:text-primary-400' : ''}`}
-            >
-              Destination
-            </button>
-            <button
-              onClick={() => setActiveStep('dashboard')}
-              className={`hover:text-primary-600 dark:hover:text-primary-400 transition-colors ${activeStep === 'dashboard' ? 'text-primary-600 dark:text-primary-400' : ''}`}
-            >
-              Dashboard
-            </button>
-            <button
-              onClick={() => setActiveStep('itinerary')}
-              className={`hover:text-primary-600 dark:hover:text-primary-400 transition-colors ${activeStep === 'itinerary' ? 'text-primary-600 dark:text-primary-400' : ''}`}
-            >
-              Itinerary
-            </button>
-          </nav>
+          {hasStarted && (
+            <nav className="hidden md:flex items-center space-x-4 text-sm font-medium text-text-secondary">
+              <button
+                onClick={() => setActiveStep('profile')}
+                className={`hover:text-primary-600 dark:hover:text-primary-400 transition-colors ${activeStep === 'profile' ? 'text-primary-600 dark:text-primary-400 font-semibold' : ''}`}
+              >
+                Profile
+              </button>
+              
+              <button
+                disabled={!profile}
+                onClick={() => setActiveStep('destination')}
+                className={`transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+                  !profile ? '' : 'hover:text-primary-600 dark:hover:text-primary-400'
+                } ${activeStep === 'destination' ? 'text-primary-600 dark:text-primary-400 font-semibold' : ''}`}
+                title={!profile ? "Complete profile first" : ""}
+              >
+                Destination
+              </button>
+              
+              <button
+                disabled={!destination}
+                onClick={() => setActiveStep('dashboard')}
+                className={`transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+                  !destination ? '' : 'hover:text-primary-600 dark:hover:text-primary-400'
+                } ${activeStep === 'dashboard' ? 'text-primary-600 dark:text-primary-400 font-semibold' : ''}`}
+                title={!destination ? "Select destination first" : ""}
+              >
+                Dashboard
+              </button>
+              
+              <button
+                disabled={!destination}
+                onClick={() => setActiveStep('itinerary')}
+                className={`transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+                  !destination ? '' : 'hover:text-primary-600 dark:hover:text-primary-400'
+                } ${activeStep === 'itinerary' ? 'text-primary-600 dark:text-primary-400 font-semibold' : ''}`}
+                title={!destination ? "Select destination first" : ""}
+              >
+                Itinerary
+              </button>
+            </nav>
+          )}
           <ThemeToggle />
         </div>
       </div>
