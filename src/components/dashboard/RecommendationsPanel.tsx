@@ -7,7 +7,7 @@ import { MapPin, ArrowRight, Search, LayoutGrid } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatters';
 
 import { matchMood } from '../../utils/moodFilter';
-import { resolvePlaceImage } from '../../utils/imageResolver';
+import { LocationImage } from '../ui/LocationImage';
 
 export const RecommendationsPanel: React.FC<{ onOpenStory: (id: string, name: string) => void }> = ({ onOpenStory }) => {
   const { recommendations, selections, addSelection, removeSelection, activeMood } = useAppStore();
@@ -123,11 +123,10 @@ export const RecommendationsPanel: React.FC<{ onOpenStory: (id: string, name: st
             >
               {/* Card Image Header */}
               <div className="relative h-40 w-full overflow-hidden bg-gray-100 dark:bg-gray-700">
-                <img 
-                  src={resolvePlaceImage(rec.name, rec.category, 'recommendation')} 
-                  alt={rec.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  loading="lazy"
+                <LocationImage
+                  name={rec.name}
+                  category={rec.category}
+                  type="recommendation"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60"></div>
                 

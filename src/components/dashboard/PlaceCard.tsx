@@ -3,7 +3,7 @@ import { Plus, Check, MapPin } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import type { SelectedItem } from '../../store/useAppStore';
 import { formatCurrency } from '../../utils/formatters';
-import { resolvePlaceImage } from '../../utils/imageResolver';
+import { useLocationImage } from '../../utils/useLocationImage';
 
 interface PlaceCardProps {
   id: string;
@@ -32,7 +32,8 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({
     }
   };
 
-  const imageUrl = resolvePlaceImage(name, category || type, type);
+  const city = useAppStore(s => s.destination?.city);
+  const { src: imageUrl, loading: imgLoading } = useLocationImage(name, city, category || type, type);
 
   return (
     <div 
@@ -41,11 +42,21 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({
     >
       {/* Visual Image Header */}
       <div className="relative h-44 w-full overflow-hidden bg-gray-100 dark:bg-gray-700">
+        {/* Shimmer skeleton while the real photo loads */}
+        {imgLoading && (
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 animate-pulse" />
+        )}
         <img 
           src={imageUrl} 
           alt={name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+          className={`w-full h-full object-cover group-hover:scale-105 transition-all duration-500 ease-out ${
+            imgLoading ? 'opacity-0' : 'opacity-100'
+          }`}
           loading="lazy"
+          onError={(e) => {
+            // If Wikipedia image fails to load, hide it so fallback shimmer shows
+            (e.target as HTMLImageElement).style.opacity = '0';
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60"></div>
         
