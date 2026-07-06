@@ -5,49 +5,77 @@ test.describe('TravelYarro Happy Path', () => {
     await page.goto('/');
 
     // 1. Onboarding Hero
-    await expect(page.locator('h1')).toContainText('Welcome to TravelYarro');
+    await expect(page.getByRole('heading', { name: 'Welcome to TravelYarro' })).toBeVisible();
     await page.getByRole('button', { name: "Let's Start Planning" }).click();
 
-    // 2. Profile Wizard (Step 1)
-    await expect(page.locator('h2')).toContainText('What brings you joy');
-    await page.getByText('Culture & History').click();
-    await page.getByText('Food & Culinary').click();
-    await page.getByRole('button', { name: 'Continue' }).click();
+    // 2. Profile Wizard (Step 1: Interests)
+    await expect(page.getByRole('heading', { name: 'What are your interests?' })).toBeVisible();
+    await page.getByRole('button', { name: 'Culture', exact: true }).click();
+    await page.getByRole('button', { name: 'Food', exact: true }).click();
+    await page.getByRole('button', { name: 'Next' }).click();
 
-    // Profile Wizard (Step 2)
-    await expect(page.locator('h2')).toContainText('budget');
-    await page.getByText('Moderate').click();
-    await page.getByRole('button', { name: 'Continue' }).click();
+    // Profile Wizard (Step 2: Budget & Style)
+    await expect(page.getByRole('heading', { name: 'Budget & Style' })).toBeVisible();
+    await page.getByPlaceholder('e.g. 50000').fill('30000');
+    await page.getByRole('button', { name: 'Solo', exact: true }).click();
+    await page.getByRole('button', { name: 'Next' }).click();
 
-    // Profile Wizard (Step 3)
-    await expect(page.locator('h2')).toContainText('pace');
-    await page.getByText('Balanced').click();
-    await page.getByRole('button', { name: 'Continue' }).click();
+    // Profile Wizard (Step 3: When & How - Dates & Pace)
+    await expect(page.getByRole('heading', { name: 'When & How' })).toBeVisible();
+    
+    // Fill Dates (today is 2026-07-06, let's select future dates)
+    const today = new Date();
+    const startDate = new Date(today.getTime() + 24 * 60 * 60 * 1000 * 5); // 5 days from now
+    const endDate = new Date(today.getTime() + 24 * 60 * 60 * 1000 * 10); // 10 days from now
+    
+    const formatDate = (d: Date) => d.toISOString().split('T')[0];
+    
+    await page.locator('input[type="date"]').first().fill(formatDate(startDate));
+    await page.locator('input[type="date"]').last().fill(formatDate(endDate));
+    
+    // Select moderate pace radio
+    await page.locator('input[type="radio"][value="moderate"]').click();
+    await page.getByRole('button', { name: 'Next' }).click();
+
+    // Profile Wizard (Step 4: Dietary & Accessibility)
+    await expect(page.getByRole('heading', { name: 'Preferences & Needs' })).toBeVisible();
+    await page.getByRole('button', { name: 'Complete Profile' }).click();
 
     // 3. Destination Input
-    await expect(page.locator('h2')).toContainText('Where to?');
-    await page.getByPlaceholder('e.g., Paris, Kyoto, New York').fill('Indore');
-    await page.getByRole('button', { name: 'Start Exploring' }).click();
-
-    // 4. Dashboard Grid (Mock data should load quickly)
-    await expect(page.locator('h2')).toContainText('Discover Indore', { timeout: 15000 });
+    await expect(page.getByRole('heading', { name: 'Where in India to next?' })).toBeVisible();
     
-    // Select an item to ensure Trip Summary allows generating itinerary
-    // Assuming there is at least one recommendation available. We click the first Card.
-    // It's a bit tricky to select by text if it's dynamic, so we'll just click the first element that looks like a card.
+    // Select state and enter city
+    await page.locator('select').selectOption('Madhya Pradesh');
+    await page.getByPlaceholder('e.g. city in Madhya Pradesh').fill('Indore');
+    
+    // Click validation button
+    await page.getByRole('button', { name: 'Verify Location' }).click();
+    
+    // Wait for the "Location confirmed" text to appear
+    await expect(page.getByText('Location confirmed')).toBeVisible({ timeout: 15000 });
+    
+    // Click Proceed button
+    await page.getByRole('button', { name: 'Explore Destination' }).click();
+
+    // 4. Dashboard Grid
+    await expect(page.getByRole('heading', { name: 'Discover Indore' })).toBeVisible({ timeout: 15000 });
+    
+    // Wait for the recommendations to be visible in the DOM
     await page.waitForSelector('text=Recommended for you');
     
-    // Wait for the mock AI loading to finish (toast or loading overlay disappears)
-    await expect(page.getByText('Dashboard fully loaded!')).toBeVisible({ timeout: 15000 });
-    
     // Click the first recommended card to select it
-    await page.locator('section').filter({ hasText: 'Recommended for you' }).locator('.cursor-pointer').first().click();
+    const firstCard = page.locator('section').filter({ hasText: 'Recommended for you' }).locator('.cursor-pointer').first();
+    await expect(firstCard).toBeVisible();
+    await firstCard.click();
 
     // Click Generate Itinerary in Sidebar
     await page.getByRole('button', { name: 'Generate Itinerary' }).click();
 
+    // Click Generate Magic Plan on the selection tray review step
+    await page.getByRole('button', { name: 'Generate Magic Plan' }).click();
+
     // 5. Itinerary View
-    await expect(page.locator('h2').first()).toContainText('Your Itinerary: Indore', { timeout: 15000 });
-    await expect(page.getByText('Day 1')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Your Itinerary: Indore' })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: 'Day 1', exact: true })).toBeVisible();
   });
 });
