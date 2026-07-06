@@ -17,15 +17,12 @@ Here is a live walkthrough animation showing the onboarding layout and scrolling
 ### Interface Screenshots
 
 **Onboarding Welcome Screen:**
-![Onboarding Welcome Screen](assets/onboarding_welcome.png)
+<img width="1714" height="905" alt="onboarding_welcome" src="https://github.com/user-attachments/assets/a18d3722-9e2f-4fa1-be30-d1f23d5dd223" />
 
 **Onboarding Details Screen:**
-![Onboarding Details Screen](assets/onboarding_details.png)
-
+<img width="1711" height="911" alt="onboarding_details" src="https://github.com/user-attachments/assets/1ebe1b61-3852-4421-bb7d-315371173ce4" />
 
 **itnary Details Screen:**
-![itnary Details Screen](assets/itnary_details.png)
-
 <img width="1728" height="905" alt="itnary_details" src="https://github.com/user-attachments/assets/9cb1c4ce-ea79-4231-99a3-5ef45d58c3ad" />
 
 ---
