@@ -4,8 +4,7 @@ import { agent } from '../../services/AgentFacade';
 import { ItineraryView } from './ItineraryView';
 import { EmptyState } from '../layout/EmptyState';
 import { CardSkeleton } from '../layout/Skeleton';
-import { Calendar, Wand2, AlertCircle, RefreshCw, Clock } from 'lucide-react';
-import { useToast } from '../../hooks/useToast';
+import { Calendar, Wand2, AlertCircle } from 'lucide-react';
 import { RateLimitError } from '../../services/ai/AgentError';
 
 export const ItineraryBuilder: React.FC = () => {

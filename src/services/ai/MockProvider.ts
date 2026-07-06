@@ -6,26 +6,36 @@ export class MockProvider implements IAIProvider {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    // Try to return a valid dummy object that passes schema
+    // Simple mock data matcher based on basic schema parsing
     try {
-      // Extremely naive mock data generator
-      // In a real app we'd use something like JSON schema faker or specific fixtures
-      const shape = (schema as z.ZodObject<z.ZodRawShape>)._def?.shape?.();
-      if (!shape) throw new Error("Could not determine schema shape");
+      const mockObj: Record<string, any> = {};
+      const shape = (schema as any).shape || (schema as any)._def?.shape || {};
       
-      const mockObj: Record<string, unknown> = {};
-      for (const [key, value] of Object.entries(shape)) {
-        if (key.toLowerCase().includes('cost')) mockObj[key] = 50;
-        else if (key.toLowerCase().includes('name') || key.toLowerCase().includes('title')) mockObj[key] = `Mock ${key}`;
-        else if (key.toLowerCase().includes('time')) mockObj[key] = "10:00 AM";
-        else if ((value as z.ZodTypeAny)._def?.typeName === 'ZodArray') mockObj[key] = [];
-        else mockObj[key] = `Mock data for ${key}`;
+      for (const key of Object.keys(shape)) {
+        if (key.toLowerCase().includes('cost')) {
+          mockObj[key] = 500;
+        } else if (key.toLowerCase().includes('name') || key.toLowerCase().includes('title')) {
+          mockObj[key] = `Mock ${key}`;
+        } else if (key.toLowerCase().includes('time')) {
+          mockObj[key] = "10:00 AM";
+        } else if (key.toLowerCase().includes('date')) {
+          mockObj[key] = "2026-07-06";
+        } else if (key.toLowerCase().includes('items')) {
+          mockObj[key] = [];
+        } else {
+          mockObj[key] = `Mock data for ${key}`;
+        }
       }
       
-      return schema.parse(mockObj);
+      // Try parsing mockObj. If it's a ZodArray schema, return a mock array instead
+      if (schema instanceof z.ZodArray) {
+        return schema.parse([mockObj]) as T;
+      }
+      
+      return schema.parse(mockObj) as T;
     } catch (e) {
-      console.warn("MockProvider failed to generate schema-valid dummy data", e);
-      throw new Error("Mock provider failed");
+      console.warn("MockProvider failed to parse, fallback to empty array or object", e);
+      return schema.parse(schema instanceof z.ZodArray ? [] : {}) as T;
     }
   }
 

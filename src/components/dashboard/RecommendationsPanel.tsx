@@ -7,6 +7,7 @@ import { MapPin, ArrowRight, Search, LayoutGrid } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatters';
 
 import { matchMood } from '../../utils/moodFilter';
+import { resolvePlaceImage } from '../../utils/imageResolver';
 
 export const RecommendationsPanel: React.FC<{ onOpenStory: (id: string, name: string) => void }> = ({ onOpenStory }) => {
   const { recommendations, selections, addSelection, removeSelection, activeMood } = useAppStore();
@@ -118,19 +119,36 @@ export const RecommendationsPanel: React.FC<{ onOpenStory: (id: string, name: st
               key={rec.id}
               selected={compareMode ? isComparing : isSelected}
               onSelect={() => handleSelect(rec)}
+              className="overflow-hidden p-0 flex flex-col h-full group"
             >
-              <div className="flex justify-between items-start mb-2">
-                <span className="text-xs font-semibold px-2 py-1 bg-accent/10 text-accent rounded-full">
+              {/* Card Image Header */}
+              <div className="relative h-40 w-full overflow-hidden bg-gray-100 dark:bg-gray-700">
+                <img 
+                  src={resolvePlaceImage(rec.name, rec.category, 'recommendation')} 
+                  alt={rec.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60"></div>
+                
+                {/* Overlaid Category Badge */}
+                <span className="absolute bottom-3 left-3 text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 bg-black/40 text-white backdrop-blur-md rounded-md border border-white/10">
                   {rec.category}
                 </span>
-                <span className="font-bold text-text-primary">
+
+                {/* Overlaid Cost */}
+                <span className="absolute bottom-3 right-3 text-xs font-bold text-white px-2 py-0.5 bg-black/40 backdrop-blur-md rounded-md">
                   {formatCurrency(rec.estCost, 'INR')}
                 </span>
               </div>
-              <h4 className="text-xl font-bold mb-2 text-text-primary">{rec.name}</h4>
-              <p className="text-text-secondary text-sm mb-4 line-clamp-3">
-                {rec.description}
-              </p>
+
+              <div className="p-5 flex-grow flex flex-col justify-between">
+                <div>
+                  <h4 className="text-xl font-bold mb-2 text-text-primary group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-1">{rec.name}</h4>
+                  <p className="text-text-secondary text-sm mb-4 line-clamp-3 leading-relaxed">
+                    {rec.description}
+                  </p>
+                </div>
               
               <div className="flex flex-wrap gap-1 mb-4">
                 {rec.tags.map((tag) => (
@@ -151,6 +169,7 @@ export const RecommendationsPanel: React.FC<{ onOpenStory: (id: string, name: st
                   Read the story <ArrowRight className="w-4 h-4 ml-1" />
                 </button>
               )}
+              </div>
             </Card>
           );
         })}

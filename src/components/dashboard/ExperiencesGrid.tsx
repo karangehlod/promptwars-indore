@@ -4,6 +4,7 @@ import { Card } from '../ui/Card';
 import { StaggeredGrid } from '../ui/StaggeredGrid';
 import { Compass, ArrowRight } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatters';
+import { resolvePlaceImage } from '../../utils/imageResolver';
 
 import { matchMood } from '../../utils/moodFilter';
 
@@ -49,23 +50,40 @@ export const ExperiencesGrid: React.FC<{ onOpenStory: (id: string, name: string)
               key={exp.id} 
               selected={isSelected}
               onSelect={() => handleSelect(exp)}
+              className="overflow-hidden p-0 flex flex-col h-full group"
             >
-              <div className="flex justify-between items-start mb-2">
-                <span className="text-xs font-semibold px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded-full capitalize">
+              {/* Card Image Header */}
+              <div className="relative h-40 w-full overflow-hidden bg-gray-100 dark:bg-gray-700">
+                <img 
+                  src={resolvePlaceImage(exp.name, exp.type, 'experience')} 
+                  alt={exp.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60"></div>
+                
+                {/* Overlaid Badge */}
+                <span className="absolute bottom-3 left-3 text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 bg-blue-500 text-white backdrop-blur-md rounded-md border border-white/10">
                   {exp.type}
                 </span>
-                <span className="font-bold text-text-primary">
+
+                {/* Overlaid Cost */}
+                <span className="absolute bottom-3 right-3 text-xs font-bold text-white px-2 py-0.5 bg-black/40 backdrop-blur-md rounded-md">
                   {formatCurrency(exp.estCost, 'INR')}
                 </span>
               </div>
-              <h4 className="text-xl font-bold mb-2 text-text-primary">{exp.name}</h4>
-              <p className="text-text-secondary text-sm mb-4 line-clamp-3">
-                {exp.description}
-              </p>
-              
-              <div className="text-xs text-text-secondary mb-4">
-                <span className="font-medium text-text-primary">Duration:</span> {exp.duration}
-              </div>
+
+              <div className="p-5 flex-grow flex flex-col justify-between">
+                <div>
+                  <h4 className="text-xl font-bold mb-2 text-text-primary group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-1">{exp.name}</h4>
+                  <p className="text-text-secondary text-sm mb-4 line-clamp-3 leading-relaxed">
+                    {exp.description}
+                  </p>
+                  
+                  <div className="text-xs text-text-secondary mb-4">
+                    <span className="font-medium text-text-primary">Duration:</span> {exp.duration}
+                  </div>
+                </div>
 
               <button
                 onClick={(e) => {
@@ -76,6 +94,7 @@ export const ExperiencesGrid: React.FC<{ onOpenStory: (id: string, name: string)
               >
                 Read the story <ArrowRight className="w-4 h-4 ml-1" />
               </button>
+              </div>
             </Card>
           );
         })}

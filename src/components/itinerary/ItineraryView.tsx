@@ -247,7 +247,7 @@ export const ItineraryView: React.FC = () => {
         </div>
 
         {/* Budget Breakdown */}
-        <BudgetBreakdown breakdown={itinerary.budgetBreakdown} totalBudget={itinerary.totalBudget} />
+        <BudgetBreakdown breakdown={itinerary.budgetBreakdown} totalBudget={itinerary.totalBudget} profileAmount={profile.budget.amount} />
 
         {/* Map Preview */}
         <MapPreview destination={destination} days={itinerary.days} />
