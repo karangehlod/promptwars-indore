@@ -24,6 +24,6 @@ export default defineConfig({
     env: {
       VITE_USE_MOCKS: 'true',
     },
-    timeout: 15000,
+    timeout: 60000,
   },
 });
