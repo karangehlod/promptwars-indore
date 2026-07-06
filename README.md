@@ -1,192 +1,161 @@
-# TravelYarro AI Travel Companion
-*Your personal AI-powered travel curator for discovering hidden gems, authentic experiences, and rich cultural heritage.*
+# TravelYarro — AI Travel Companion
+*Your personal AI-powered travel curator for discovering hidden gems, authentic experiences, and rich cultural heritage in India.*
 
 ---
 
-## Overview
+## 🚀 Live Demo, Video & Screenshots
 
-TravelYarro is a client-only, AI-powered travel planning application that curates personalized travel experiences. It leverages Google's Gemini AI to generate tailored recommendations, uncover hidden cultural gems, map out local events, and build comprehensive itineraries with precise budget analyses in INR. Built entirely on the frontend with React and Vite, TravelYarro demonstrates how to build robust, multi-stage LLM pipelines directly in the browser without needing a backend server.
+### Live Web Application
+Deploy is 100% green and active on Firebase Hosting:
+👉 **[https://travelyarro.web.app](https://travelyarro.web.app)**
 
----
+### Application Walkthrough Video
+Here is a live walkthrough animation showing the onboarding layout and scrolling:
 
-## Features
+![TravelYarro Onboarding Walkthrough Video](assets/app_walkthrough.webp)
 
-- **Personalized Travel Dashboard:** Generates 5 parallel insights (Recommendations, Hidden Gems, Heritage, Events, Experiences).
-- **Intelligent API Queue:** Handles Gemini's rate limits with exponential backoff, request deduplication, and multi-API-key rotation.
-- **Storytelling Modal:** Deep dives into the narrative and history of specific locations using `gemini-2.5-pro` streaming.
-- **Budget Analysis:** Strictly enforces INR limits and breaks down costs across categories.
-- **Step-by-step AI Pipeline:** Features an immersive animated loading overlay using Framer Motion.
-- **Responsive UI:** Built with Tailwind CSS for a beautiful, mobile-first experience.
-- **Client-Only Architecture:** Completely backend-less, running entirely on the user's browser.
+### Interface Screenshots
 
----
+**Onboarding Welcome Screen:**
+![Onboarding Welcome Screen](assets/onboarding_welcome.png)
 
-## Tech Stack
-
-- **Vite** - Lightning-fast frontend tooling
-- **React 18** - UI library
-- **TypeScript** - Strict type-safety
-- **Tailwind CSS** - Utility-first styling
-- **Zustand** - Global state management
-- **Zod** - Schema validation for LLM structured outputs
-- **Google Gemini API** - AI capabilities (`gemini-2.5-flash` & `gemini-2.5-pro`)
-- **Framer Motion** - Clean page transitions and animations
-- **Firebase Hosting** - Deployment target
+**Onboarding Details Screen:**
+![Onboarding Details Screen](assets/onboarding_details.png)
 
 ---
 
-## Project Structure
+## 🏛️ System Architecture
 
-```text
-src/
-  components/
-    dashboard/    # AI-curated panels (Gems, Heritage, Events)
-    destination/  # Location & dates input
-    itinerary/    # Timeline and Budget builder
-    layout/       # App wrappers and loaders
-    profile/      # Multi-step onboarding wizard
-    story/        # Streaming narrative modals
-  hooks/          # Custom async execution wrappers
-  schemas/        # Zod validation schemas
-  services/       # API clients, Agent prompt logic, Queue manager
-  store/          # Zustand global state
-  __tests__/      # Vitest test suites
+TravelYarro is engineered following strict **SOLID, OOP, and Clean Architecture principles** in a client-only environment. The design abstracts Google Gemini AI interactions behind an interchangeable provider interface to decouple prompt engineering, Zod model validation, and user interface logic.
+
+### Dependency Abstraction & Facade Pattern
+1. **IAIProvider Interface**: Standardizes structured generation (`generateStructured`) and streaming generation (`generateStream`).
+2. **GeminiProvider & MockProvider**: Implementing the same interface. `MockProvider` automatically generates mock data conforming to Zod validation rules during test cycles and mock-mode runs (`VITE_USE_MOCKS=true`).
+3. **Domain Services**: Independent classes (e.g., `ItineraryService`, `RecommendationService`) responsible for prompt templates and parsing specific schemas.
+4. **AgentFacade**: The single orchestrator composing all 7 domain services, exposing a unified API surface to the application's React hooks.
+
+```mermaid
+graph TD
+    UI[React Components / UI] -->|useAgent Hook| Facade[AgentFacade]
+    Facade -->|Composes| RecSvc[RecommendationService]
+    Facade -->|Composes| GemSvc[HiddenGemService]
+    Facade -->|Composes| HerSvc[HeritageService]
+    Facade -->|Composes| EvtSvc[EventService]
+    Facade -->|Composes| ExpSvc[ExperienceService]
+    Facade -->|Composes| StorySvc[StoryService]
+    Facade -->|Composes| ItinSvc[ItineraryService]
+    
+    RecSvc & GemSvc & HerSvc & EvtSvc & ExpSvc & StorySvc & ItinSvc -->|Depends on Abstraction| IAI[IAIProvider Interface]
+    
+    IAI -->|Implemented by Prod| GeminiProv[GeminiProvider]
+    IAI -->|Implemented by Test/Mock| MockProv[MockProvider]
+    
+    GeminiProv -->|Direct API Call| GeminiAPI[Google Gemini SDK]
 ```
 
 ---
 
-## Prerequisites
+## 🔄 Request-Response Sequence
 
-- **Node.js**: v18.0.0 or higher
-- **npm** or **yarn**: Package manager
-- **Firebase CLI**: For deployment (installed via npm)
+When a user selects items from their dashboard and generates an itinerary, the following sequence coordinates the prompt execution, JSON schema validation, and storage:
 
----
-
-## Environment Variables
-
-The application requires Google Gemini API keys to function. 
-TravelYarro supports **multiple API keys** to distribute load and bypass aggressive rate limits. 
-
-1. Get an API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
-2. Create a `.env` file in the root of the project.
-3. Add your keys as a comma-separated list:
-
-```env
-VITE_GEMINI_API_KEY=your_first_key_here,your_second_key_here
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant UI as Dashboard / Itinerary View
+    participant Hook as useAgent Hook
+    participant Facade as AgentFacade
+    participant ItinSvc as ItineraryService
+    participant Queue as APIQueue Manager
+    participant Provider as GeminiProvider
+    participant Zod as Zod Schema Validation
+    
+    User->>UI: Click "Generate Magic Plan"
+    UI->>Hook: trigger generateItinerary()
+    Hook->>Facade: itinerary.generateItinerary(profile, selections)
+    Facade->>ItinSvc: generateItinerary(profile, selections)
+    ItinSvc->>ItinSvc: Compile system context & user inputs into Prompt
+    ItinSvc->>Queue: enqueueRequest(prompt, ItinerarySchema)
+    Note over Queue: Rotates API keys on 429 errors<br/>Applies exponential backoff
+    Queue->>Provider: generateStructured(prompt, ItinerarySchema)
+    Provider->>Provider: Call Google Gemini SDK
+    Provider->>Zod: parse(responseJson)
+    alt Zod validation succeeds
+        Zod-->>Provider: Valid Itinerary Object
+        Provider-->>Queue: Valid Itinerary Object
+        Queue-->>ItinSvc: Valid Itinerary Object
+        ItinSvc-->>Facade: Valid Itinerary Object
+        Facade-->>Hook: Return Itinerary Object
+        Hook-->>UI: Update State & Render Day Plans
+        UI-->>User: Show Completed Day-by-Day Plan
+    else Zod validation fails / Malformed JSON
+        Zod-->>Provider: Parse Exception
+        Note over Provider: Retries generation once<br/>with raw error correction feedback
+        Provider-->>UI: Render Error Toast / Fallback
+    end
 ```
 
-**⚠️ IMPORTANT:** Never hardcode your API keys directly into the source code or commit the `.env` file to public repositories.
+---
+
+## 🛠️ Tech Stack & CI Configuration
+
+- **Vite & React 18** - Frontend bundler & UI library
+- **Tailwind CSS v4** - Styling compiler integration (`@tailwindcss/vite`)
+- **Framer Motion** - Animations and micro-interactions
+- **Zustand** - Centralized state store with persistence (`localStorage`)
+- **Zod** - Declares and verifies the schema structure of the LLM responses
+- **Vitest & Playwright** - Unit tests & E2E smoke tests
+- **Firebase Tools** - Production hosting target
+
+### CI Validation Commands
+Our GitHub Actions pipeline runs the following validation matrix:
+```bash
+# 1. Lint checks (oxlint)
+npm run lint
+
+# 2. Strict typechecks
+npx tsc --noEmit
+
+# 3. Unit test runs (Vitest)
+npx vitest run
+
+# 4. E2E Browser checks (Playwright)
+npx playwright test
+
+# 5. Production bundles build
+npm run build
+```
 
 ---
 
-## Local Setup Instructions
+## ⚙️ Local Development
 
 1. **Clone the repository:**
-```bash
-git clone <repo-url>
-cd promptwars-indore
-```
+   ```bash
+   git clone <repo-url>
+   cd promptwars-indore
+   ```
 
-2. **Install dependencies:**
-```bash
-npm install
-```
+2. **Configure Environment Variables**:
+   Create a `.env` file in the root directory:
+   ```env
+   VITE_GEMINI_API_KEY=your_key_one,your_key_two
+   VITE_USE_MOCKS=false
+   ```
+   *Note: Support for comma-separated key rotation is built in!*
 
-3. **Start the development server:**
-```bash
-npm run dev
-```
+3. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
 
-The app will now be running on `http://localhost:5173`.
-
----
-
-## Build Instructions
-
-To build the project for production:
-
-```bash
-npm run build
-```
-*This compiles the TypeScript code and bundles the React application into the `dist` folder.*
-
-To preview the production build locally:
-
-```bash
-npm run preview
-```
-*This serves the `dist` folder on a local web server to verify everything works before deployment.*
+4. **Start local Server**:
+   ```bash
+   npm run dev
+   ```
 
 ---
 
-## Firebase Deployment Guide
-
-Follow these steps to deploy TravelYarro to Firebase Hosting.
-
-### Step 1 — Install Firebase CLI
-```bash
-npm install -g firebase-tools
-```
-
-### Step 2 — Login
-```bash
-firebase login
-```
-*(This will open a browser window to authenticate with your Google account)*
-
-### Step 3 — Initialize project
-```bash
-firebase init hosting
-```
-When prompted, answer with the following:
-- What do you want to use as your public directory? **`dist`**
-- Configure as a single-page app (rewrite all urls to /index.html)? **`Yes`**
-- Set up automatic builds and deploys with GitHub? **`No`** (or Yes if desired)
-- File dist/index.html already exists. Overwrite? **`No`**
-
-### Step 4 — Build project
-```bash
-npm run build
-```
-
-### Step 5 — Deploy
-```bash
-firebase deploy
-```
-Once completed, Firebase will provide you with a live Hosting URL!
-
----
-
-## Important Notes
-
-- **Gemini API Quotas:** The free tier of Gemini has strict limits (15 RPM / 1M TPM). 
-- **429 Rate Limit Warning:** If you hit the limit, the app will intercept the `429 Quota Exceeded` error and automatically apply exponential backoff (retrying at 2s, 5s, 10s).
-- **Multiple API Keys:** To avoid disruptions during heavily parallelized fetching (e.g., the dashboard load), it is highly recommended to provide at least 2 comma-separated API keys in your `.env` file. The internal queue will automatically rotate them.
-
----
-
-## Common Issues & Fixes
-
-- **Missing API Key:** Ensure `VITE_GEMINI_API_KEY` is set in your `.env` file and that you restart the dev server after adding it.
-- **429 Errors:** The app queues requests and will automatically retry. If the error persists, you have exhausted all keys. Wait a few minutes or add more keys to the `.env`.
-- **Blank UI after deploy:** Check your browser's console. If you see CORS errors or missing keys, ensure you configured environment variables in your hosting provider (e.g., Firebase).
-- **Firebase routing issues:** Ensure you answered `Yes` to the "Configure as a single-page app" question during `firebase init`.
-- **Build errors:** The project enforces strict TypeScript. Run `npm run test` and `npx tsc --noEmit` locally to catch errors before building.
-
----
-
-## Scripts
-
-```json
-npm run dev      # Starts the Vite development server
-npm run build    # Compiles TS and builds the production bundle
-npm run preview  # Previews the production bundle locally
-npm run test     # Runs the Vitest test suite
-```
-
----
-
-## License
-
+## 📜 License
 MIT License
