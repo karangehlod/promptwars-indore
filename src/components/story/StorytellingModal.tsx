@@ -4,6 +4,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { agent } from '../../services/AgentFacade';
 import { StreamingText } from './StreamingText';
 import { Logger } from '../../utils/logger';
+import { ReelsStrip } from '../ui/ReelsStrip';
 
 interface StorytellingModalProps {
   placeId: string;
@@ -20,6 +21,8 @@ function storyCacheKey(placeId: string, theme: string) {
 
 export const StorytellingModal: React.FC<StorytellingModalProps> = ({ placeId, placeName, onClose }) => {
   const profile = useAppStore(s => s.profile);
+  const destination = useAppStore(s => s.destination);
+  const city = destination?.city ?? '';
   // stories in store: Record<cacheKey, text>
   const stories = useAppStore(s => s.stories);
   const setStory = useAppStore(s => s.setStory);
@@ -170,6 +173,9 @@ export const StorytellingModal: React.FC<StorytellingModalProps> = ({ placeId, p
               )}
             </>
           )}
+
+          {/* YouTube Reels Strip */}
+          <ReelsStrip placeName={placeName} city={city} />
         </div>
       </div>
     </div>

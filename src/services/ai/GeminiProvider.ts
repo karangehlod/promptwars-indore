@@ -107,8 +107,8 @@ export class GeminiProvider implements IAIProvider {
       const model = client.getGenerativeModel({
         model: modelName,
         generationConfig: {
-          temperature: 0.85,
-          maxOutputTokens: 1028, // Stories are short — 1028 tokens ≈ 750 words
+          temperature: 0.9,
+          maxOutputTokens: 2048, // Rich stories — 2048 tokens ≈ 1500 words
         },
       });
 
