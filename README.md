@@ -22,6 +22,12 @@ Here is a live walkthrough animation showing the onboarding layout and scrolling
 **Onboarding Details Screen:**
 ![Onboarding Details Screen](assets/onboarding_details.png)
 
+
+**itnary Details Screen:**
+![itnary Details Screen](assets/itnary_details.png)
+
+<img width="1728" height="905" alt="itnary_details" src="https://github.com/user-attachments/assets/9cb1c4ce-ea79-4231-99a3-5ef45d58c3ad" />
+
 ---
 
 ## 🏛️ System Architecture
@@ -35,6 +41,7 @@ TravelYarro is engineered following strict **SOLID, OOP, and Clean Architecture 
 4. **AgentFacade**: The single orchestrator composing all 7 domain services, exposing a unified API surface to the application's React hooks.
 
 ```mermaid
+
 graph TD
     UI[React Components / UI] -->|useAgent Hook| Facade[AgentFacade]
     Facade -->|Composes| RecSvc[RecommendationService]
@@ -60,6 +67,7 @@ graph TD
 When a user selects items from their dashboard and generates an itinerary, the following sequence coordinates the prompt execution, JSON schema validation, and storage:
 
 ```mermaid
+
 sequenceDiagram
     autonumber
     actor User
