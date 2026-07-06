@@ -3,7 +3,6 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ItineraryView } from '../components/itinerary/ItineraryView';
 import { useAppStore } from '../store/useAppStore';
 import { ToastProvider } from '../hooks/useToast';
-import { agent } from '../services/AgentFacade';
 
 // Mock the agent facade
 const mockRegenerateSingleDay = vi.fn();

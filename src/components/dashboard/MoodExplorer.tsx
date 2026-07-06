@@ -2,7 +2,7 @@ import React from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { Compass, Sparkles, Flame, Eye, Landmark } from 'lucide-react';
 
-export const MOODS = [
+const MOODS = [
   { id: 'Culture', label: 'Culture & Arts', icon: Compass, color: 'from-orange-500 to-amber-500' },
   { id: 'Culinary', label: 'Foodie / Culinary', icon: Flame, iconChar: '🌶️', color: 'from-red-500 to-orange-500' },
   { id: 'Adventure', label: 'Adventure & Thrill', icon: Sparkles, iconChar: '🧗', color: 'from-blue-500 to-indigo-500' },
