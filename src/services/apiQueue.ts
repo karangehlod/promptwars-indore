@@ -26,6 +26,9 @@ class APIQueue {
   }
 
   private getCurrentKey(): string {
+    if (this.keys.length === 0) {
+      this.keys = getGeminiApiKeys();
+    }
     if (this.keys.length === 0) return '';
     return this.keys[this.currentKeyIndex];
   }
